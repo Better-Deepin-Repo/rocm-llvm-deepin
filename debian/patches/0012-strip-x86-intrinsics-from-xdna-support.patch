@@ -1,0 +1,35 @@
+From: Cordell Bloor <cgmb@debian.org>
+Date: Sat, 25 Oct 2025 01:33:08 -0600
+Subject: strip x86 intrinsics from xdna support
+
+Forwarded: not-needed
+---
+ runtime/hsa-runtime/core/util/utils.h | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+Index: rocr-runtime/runtime/hsa-runtime/core/util/utils.h
+===================================================================
+--- rocr-runtime.orig/runtime/hsa-runtime/core/util/utils.h
++++ rocr-runtime/runtime/hsa-runtime/core/util/utils.h
+@@ -382,6 +382,7 @@ static __forceinline std::string& rtrim(
+ 
+ static __forceinline std::string& trim(std::string& s) { return ltrim(rtrim(s)); }
+ 
++#if defined(__i386__) || defined(__x86_64__)
+ /// @brief: Flush the cachelines associated with the
+ /// provided address, offset, and length
+ /// @param: base(Input), base address to flush
+@@ -413,6 +414,13 @@ inline void FlushCpuCache(const void* ba
+     cur += cacheline_size;
+   } while (cur <= (const char*)lastline);
+ }
++#else
++inline void FlushCpuCache(const void* base, size_t offset, size_t len) {
++  (void)base;
++  (void)offset;
++  (void)len;
++}
++#endif
+ 
+ }  // namespace rocr
+ 

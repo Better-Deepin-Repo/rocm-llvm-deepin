@@ -1,0 +1,33 @@
+From: Cordell Bloor <cgmb@slerp.xyz>
+Date: Tue, 9 Jan 2024 01:18:36 -0700
+Subject: link to drm_amdgpu
+
+libhsa-runtime64 uses some symbols from libdrm_amdgpu, such as
+amdgpu_query_gpu_info.
+
+Forwarded: no
+---
+ runtime/hsa-runtime/CMakeLists.txt | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+Index: rocr-runtime/runtime/hsa-runtime/CMakeLists.txt
+===================================================================
+--- rocr-runtime.orig/runtime/hsa-runtime/CMakeLists.txt
++++ rocr-runtime/runtime/hsa-runtime/CMakeLists.txt
+@@ -98,6 +98,7 @@ add_library( ${CORE_RUNTIME_TARGET} "" )
+ 
+ if (UNIX)
+   pkg_check_modules(drm REQUIRED IMPORTED_TARGET libdrm)
++  pkg_check_modules(drm_amdgpu REQUIRED IMPORTED_TARGET libdrm_amdgpu)
+ else()
+   target_include_directories(${CORE_RUNTIME_TARGET} PRIVATE ${LIBELF_INCLUDE_DIR})
+   if (${BUILD_SHARED_LIBS})
+@@ -347,7 +348,7 @@ endif()
+ # Link to hsakmt-staticdrm target for static library builds
+ if( BUILD_SHARED_LIBS )
+   if (UNIX)
+-    target_link_libraries ( ${CORE_RUNTIME_TARGET} PRIVATE hsakmt::hsakmt PkgConfig::drm)
++    target_link_libraries ( ${CORE_RUNTIME_TARGET} PRIVATE hsakmt::hsakmt PkgConfig::drm PkgConfig::drm_amdgpu)
+     if( BUILD_THUNK_VIRTIO )
+       message(STATUS "Building with virtio support")
+       target_link_libraries ( ${CORE_RUNTIME_TARGET} PRIVATE hsakmt_virtio)

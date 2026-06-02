@@ -1,0 +1,32 @@
+#!/usr/bin/make -f
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
+
+ifneq (,$(filter stage1,$(DEB_BUILD_PROFILES)))
+CMAKE_EXTRA_FLAGS := -DIMAGE_SUPPORT=OFF
+BUILD_ROCRTST := OFF
+else ifneq (amd64,$(DEB_HOST_ARCH))
+CMAKE_EXTRA_FLAGS := -DIMAGE_SUPPORT=OFF
+BUILD_ROCRTST := ON
+else
+CMAKE_EXTRA_FLAGS :=
+BUILD_ROCRTST := ON
+endif
+
+CMAKE_EXTRA_FLAGS += \
+ -DBUILD_ROCRTST=$(BUILD_ROCRTST) \
+ -DINCLUDE_PATH_COMPATIBILITY=OFF
+
+%:
+	dh $@
+
+override_dh_auto_configure:
+	dh_auto_configure -- $(CMAKE_EXTRA_FLAGS)
+
+# Skip stripping GPU kernel binaries (.hsaco) - not valid host ELF files
+override_dh_strip:
+	dh_strip --exclude=.hsaco
+
+# Skip DWZ for GPU kernel binaries (.hsaco) - do not contain DWARF debug info
+override_dh_dwz:
+	dh_dwz --exclude=.hsaco

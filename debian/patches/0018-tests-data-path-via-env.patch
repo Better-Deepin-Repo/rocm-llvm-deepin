@@ -1,0 +1,30 @@
+Description: rocrtst test suites use ENV for kernels path
+ Allow overriding the base directory used to locate kernel object files 
+ via the ROCRTST_KERNELS_PATH environment variable.
+ This enables running tests from autopkgtest or other environments.
+
+Author: Bojan Aleksovski <bojan.aleksovski@canonical.com>
+Bug-Ubuntu: https://bugs.launchpad.net/ubuntu/+source/rocr-runtime/+bug/2147200
+Forwarded: https://github.com/ROCm/rocm-systems/pull/4693
+Last-Update: 2026-04-03
+
+diff --git a/rocrtst/common/base_rocr_utils.cc b/rocrtst/common/base_rocr_utils.cc
+index 074ba83..93d23f8 100755
+--- a/rocrtst/common/base_rocr_utils.cc
++++ b/rocrtst/common/base_rocr_utils.cc
+@@ -289,10 +289,13 @@ std::string LocateKernelFile(std::string filename, hsa_agent_t agent) {
+   hsa_status_t err = hsa_agent_get_info(agent, HSA_AGENT_INFO_NAME, agent_name);
+   RET_IF_HSA_UTILS_ERR_RET(err, obj_file);
+ 
+-  obj_file = "./" + filename;
++  const char* env_path = getenv("ROCRTST_KERNELS_PATH");
++  std::string base = (env_path && env_path[0] != '\0') ? env_path : ".";
++
++  obj_file = base + "/" + filename;
+   int file_handle = open(obj_file.c_str(), O_RDONLY);
+   if (file_handle < 0) {
+-    obj_file = "./" + std::string(agent_name) + "/" + filename;
++    obj_file = base + "/" + std::string(agent_name) + "/" + filename;
+     file_handle = open(obj_file.c_str(), O_RDONLY);
+     if(file_handle < 0)
+       std::runtime_error("Could not open file.\n");

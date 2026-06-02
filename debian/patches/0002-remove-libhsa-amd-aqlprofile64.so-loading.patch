@@ -1,0 +1,36 @@
+From: Cordell Bloor <cgmb@slerp.xyz>
+Date: Thu, 24 Nov 2022 18:07:37 -0700
+Subject: remove libhsa-amd-aqlprofile64.so loading
+
+During the initialization of libhsa-runtime64, the library will attempt
+to load libhsa-amd-aqlprofile64.so. The aqlprofile library is an
+optional proprietary extension for profiling and is therefore not
+available in the Debian repos. The failure to find this library results
+in the warning:
+
+    LoadLib(libhsa-amd-aqlprofile64.so) failed: libhsa-amd-aqlprofile64.so: cannot open shared object file: No such file or directory
+
+There is not actually anything wrong or unexpected with this file being
+missing, so this warning is not appropriate.
+
+Bug-Debian: https://bugs.debian.org/1024791
+Forwarded: not-needed
+Reviewed-By: Étienne Mollier <emollier@debian.org>
+---
+ runtime/hsa-runtime/core/runtime/amd_gpu_agent.cpp | 5 -----
+ 1 file changed, 5 deletions(-)
+
+--- a/runtime/hsa-runtime/core/runtime/amd_gpu_agent.cpp
++++ b/runtime/hsa-runtime/core/runtime/amd_gpu_agent.cpp
+@@ -1442,11 +1442,6 @@
+         setFlag(HSA_EXTENSION_AMD_PC_SAMPLING);
+       }
+ 
+-      if (os::LibHandle lib = os::LoadLib(kAqlProfileLib)) {
+-        os::CloseLib(lib);
+-        setFlag(HSA_EXTENSION_AMD_AQLPROFILE);
+-      }
+-
+       setFlag(HSA_EXTENSION_AMD_PROFILER);
+ 
+       break;

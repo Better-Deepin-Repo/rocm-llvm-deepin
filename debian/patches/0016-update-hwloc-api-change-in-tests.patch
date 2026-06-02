@@ -1,0 +1,24 @@
+Description: Update hwloc API change in memory_async_copy test
+ Reflect update of upstream hwloc API change since v2.0.0:
+ https://github.com/open-mpi/hwloc/blob/master/NEWS#L808
+
+Author: Bojan Aleksovski <bojan.aleksovski@canonical.com>
+Forwarded: https://github.com/ROCm/rocm-systems/pull/4691
+Last-Update: 2026-04-03
+
+--- a/rocrtst/suites/performance/memory_async_copy.cc
++++ b/rocrtst/suites/performance/memory_async_copy.cc
+@@ -898,8 +898,13 @@
+ void MemoryAsyncCopy::FindTopology() {
+   hsa_status_t err;
+ 
++#if HWLOC_API_VERSION >= 0x00020000
++  hwloc_topology_set_flags(topology_, HWLOC_TOPOLOGY_FLAG_WHOLE_SYSTEM);
++  hwloc_topology_set_io_types_filter(topology_, HWLOC_TYPE_FILTER_KEEP_ALL);
++#else
+   hwloc_topology_set_flags(topology_, HWLOC_TOPOLOGY_FLAG_WHOLE_SYSTEM |
+                                          HWLOC_TOPOLOGY_FLAG_IO_DEVICES);
++#endif
+ 
+   hwloc_topology_load(topology_);
+ 

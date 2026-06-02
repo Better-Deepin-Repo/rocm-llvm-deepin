@@ -1,0 +1,3 @@
+usr/lib/${DEB_HOST_MULTIARCH}/libhsa-runtime64.so
+usr/include/hsa
+usr/lib/${DEB_HOST_MULTIARCH}/cmake/hsa-runtime64

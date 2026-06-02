@@ -1,0 +1,14 @@
+0001-link-to-drm_amdgpu.patch
+0002-remove-libhsa-amd-aqlprofile64.so-loading.patch
+0003-expand-endian-detection.patch
+0004-extend-isa-compatibility-check.patch
+0006-initialize-chip-revision.patch
+On-non-x86-use-alternative-to-x86-intrinsic-__mm_pause.patch
+0008-fix-pkgconfig-path.patch
+0010-fix-missing-stdint.h.patch
+0012-strip-x86-intrinsics-from-xdna-support.patch
+0013-fix-arm64-x86-intrinsics.patch
+0016-update-hwloc-api-change-in-tests.patch
+0017-enable-building-rocrtst-as-part-of-rocr.patch
+0018-tests-data-path-via-env.patch
+0019-fix-test-verbosity-0.patch

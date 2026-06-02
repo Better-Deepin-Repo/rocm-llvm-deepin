@@ -1,0 +1,238 @@
+Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
+Source: https://github.com/ROCm/ROCR-Runtime
+Files-Excluded: libhsakmt/tests/kfdtest/gtest-1.6.0
+ rocrtst/gtest
+ rocrtst/thirdparty
+Comment:
+ We exclude the vendored copies of GTest and a binary copy of hwloc.
+
+Files: *
+Copyright: 2014-2025, Advanced Micro Devices, Inc.
+License: NCSA
+
+Files: debian/*
+Copyright: 2020, Norbert Preining <norbert@preining.info>
+           2019-2023, Mo Zhou <lumin@debian.org>
+           2022-2023, Étienne Mollier <emollier@debian.org>
+           2023-2026, Cordell Bloor <cgmb@debian.org>
+           2024, Xuanteng Huang <xuanteng.huang@outlook.com>
+           2025-2026, Mario Limonciello <superm1@debian.org>
+           2026, Talha Can Havadar <havadartalha@gmail.com>
+License: Expat
+
+Files: clang-format-diff.py
+Copyright: 2003-2017, University of Illinois at Urbana-Champaign
+License: APACHE-2-LLVM-EXCEPTIONS
+Comment: This file is has been copied from LLVM 13, where it can be
+ found as clang/tools/clang-format/clang-format-diff.py
+
+Files: libhsakmt/*
+Copyright: 2012-2024, Advanced Micro Devices, Inc.
+License: Expat
+
+Files: libhsakmt/src/rbtree.c
+       libhsakmt/src/rbtree.h
+Copyright: 2002-2018, Igor Sysoe
+           2011-2018, Nginx, Inc.
+License: BSD-2-clause
+
+Files: samples/common/helper_funcs.cpp
+       samples/common/helper_funcs.hpp
+Copyright: 2013, Advanced Micro Devices, Inc.
+License: BSD-2-clause
+
+Files: libhsakmt/src/topology.c
+Copyright: 2014 Advanced Micro Devices, Inc.
+           2016-2018 Raptor Engineering, LLC.
+License: Expat
+
+Files: libhsakmt/cmake_modules/utils.cmake
+   libhsakmt/tests/kfdtest/src/Assemble.cpp
+   libhsakmt/tests/kfdtest/src/Assemble.hpp
+Copyright: 2014-2017,2022, Advanced Micro Devices, Inc.
+License: NCSA
+
+Files: runtime/cmake_modules/FindLibElf.cmake
+   runtime/hsa-runtime/cmake_modules/FindLibElf.cmake
+Copyright: 2008, Bernhard Walle <bernhard.walle@gmx.de>
+License: BSD-3-clause
+
+Files: runtime/hsa-runtime/image/addrlib/*
+Copyright: 2007-2024, Advanced Micro Devices, Inc.
+License: Expat
+
+Files: libhsakmt/include/hsakmt/linux/udmabuf.h
+Copyright: Linux kernel contributors
+License: GPL-2
+Comment: Copied from Linux kernel source with minor modifications.
+ The source file carries SPDX tag "GPL-2.0 WITH Linux-syscall-note".
+
+Files: libhsakmt/src/virtio/include/linux/virtgpu_drm.h
+Copyright: 2013, Red Hat
+License: Expat
+Comment: Copied from the Linux kernel UAPI headers (include/uapi/drm/virtgpu_drm.h).
+
+Files: libhsakmt/LICENSE.md
+Copyright: 2016, Advanced Micro Devices, Inc.
+       2002-2018, Igor Sysoev
+       2011-2018, Nginx, Inc.
+License: BSD-2-clause-or-Expat
+
+Files: rocrtst/common/utils_test/*
+   rocrtst/Kernels/read_kernel.cl
+   rocrtst/Kernels/write_kernel.cl
+   rocrtst/samples/rocm_async/*
+   rocrtst/suites/performance/memory_async_copy_on_engine.cc
+   rocrtst/suites/performance/memory_async_copy_on_engine.h
+   runtime/hsa-runtime/core/runtime/blit_shaders/create_blit_shader_header.py
+   runtime/hsa-runtime/core/runtime/trap_handler/create_trap_handler_header.py
+   runtime/hsa-runtime/core/util/mpsc_queue.hpp
+   runtime/hsa-runtime/image/blit_src/create_hsaco_ascii_file.py
+   runtime/hsa-runtime/inc/hsa_amd_tool.h
+   runtime/hsa-runtime-tools/CMakeLists.txt
+   samples/common/common.cpp
+   samples/common/common.hpp
+   samples/common/common_utility.cpp
+   samples/common/common_utility.h
+   samples/common/hsa_base_util.cpp
+   samples/common/hsa_base_util.h
+   samples/common/hsa_perf_cntrs.cpp
+   samples/common/hsa_perf_cntrs.hpp
+   samples/common/hsa_rsrc_factory.cpp
+   samples/common/hsa_rsrc_factory.hpp
+   samples/common/hsa_test.cpp
+   samples/common/hsa_test.h
+   samples/common/hsatimer.cpp
+   samples/common/hsatimer.h
+   samples/common/os.cpp
+   samples/common/os.h
+   samples/common/utilities.cpp
+   samples/common/utilities.h
+   samples/GetInfo/get_info.cpp
+   samples/GetInfo/get_info.h
+Copyright: Advanced Micro Devices, Inc., or its affiliates.
+License: Expat
+
+License: BSD-2-clause
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
+ ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+ IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+ ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
+ FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+ DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
+ OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+ HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
+ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
+ SUCH DAMAGE.
+
+License: BSD-3-clause
+ Redistribution and use in source and binary forms, with or without
+ modification, are permitted provided that the following conditions
+ are met:
+ 1. Redistributions of source code must retain the above copyright
+    notice, this list of conditions and the following disclaimer.
+ 2. Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimer in the
+    documentation and/or other materials provided with the distribution.
+ 3. Neither the name of the University nor the names of its contributors
+    may be used to endorse or promote products derived from this software
+    without specific prior written permission.
+ .
+ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+ A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE HOLDERS OR
+ CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+ EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+ PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
+ PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
+ LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
+ NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+License: Expat
+ Permission is hereby granted, free of charge, to any person obtaining a
+ copy of this software and associated documentation files (the "Software"),
+ to deal in the Software without restriction, including without limitation
+ the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ and/or sell copies of the Software, and to permit persons to whom the
+ Software is furnished to do so, subject to the following conditions:
+ .
+ The above copyright notice and this permission notice shall be included
+ in all copies or substantial portions of the Software.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
+ OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+ MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+ IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+License: BSD-2-clause-or-Expat
+ This file contains text under the BSD-2-clause and Expat licenses.
+ See the full license texts in the `BSD-2-clause` and `Expat` paragraphs
+ above.
+
+License: NCSA
+ The University of Illinois/NCSA
+ Open Source License (NCSA)
+ .
+ Permission is hereby granted, free of charge, to any person obtaining a copy
+ of this software and associated documentation files (the "Software"), to
+ deal with the Software without restriction, including without limitation
+ the rights to use, copy, modify, merge, publish, distribute, sublicense,
+ and#or sell copies of the Software, and to permit persons to whom the
+ Software is furnished to do so, subject to the following conditions:
+ .
+  - Redistributions of source code must retain the above copyright notice,
+    this list of conditions and the following disclaimers.
+  - Redistributions in binary form must reproduce the above copyright
+    notice, this list of conditions and the following disclaimers in
+    the documentation and#or other materials provided with the distribution.
+  - Neither the names of Advanced Micro Devices, Inc,
+    nor the names of its contributors may be used to endorse or promote
+    products derived from this Software without specific prior written
+    permission.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+ THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
+ OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
+ ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
+ DEALINGS WITH THE SOFTWARE.
+
+License: APACHE-2-LLVM-EXCEPTIONS
+ On Debian systems the full text of the Apache Software License 2.0 can be
+ found in the `/usr/share/common-licenses/Apache-2.0' file.
+ .
+ ---- LLVM Exceptions to the Apache 2.0 License ----
+ .
+ As an exception, if, as a result of your compiling your source code, portions
+ of this Software are embedded into an Object form of such source code, you
+ may redistribute such embedded portions in such Object form without complying
+ with the conditions of Sections 4(a), 4(b) and 4(d) of the License.
+ .
+ In addition, if you combine or link compiled forms of this Software with
+ software that is licensed under the GPLv2 ("Combined Software") and if a
+ court of competent jurisdiction determines that the patent provision (Section
+ 3), the indemnity provision (Section 9) or other Section of the License
+ conflicts with the conditions of the GPLv2, you may retroactively and
+ prospectively choose to deem waived or otherwise exclude such Section(s) of
+ the License, but only in their entirety and only with respect to the Combined
+ Software.
+
+License: GPL-2
+ On Debian systems the full text of the GNU General Public License version 2
+ can be found in the `/usr/share/common-licenses/GPL-2' file.

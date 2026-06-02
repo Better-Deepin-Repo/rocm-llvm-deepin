@@ -1,0 +1,9 @@
+Version: 5
+
+Source: https://api.github.com/repos/ROCm/rocm-systems/releases?per_page=100
+Matching-Pattern: https://github.com/ROCm/rocm-systems/releases/download/rocm-@ANY_VERSION@/rocr-runtime.tar.gz
+Dversionmangle: auto
+Filenamemangle: s%.*/rocm-@ANY_VERSION@/.*%@PACKAGE@-$1.tar.gz%
+Repacksuffix: +dfsg
+Searchmode: plain
+

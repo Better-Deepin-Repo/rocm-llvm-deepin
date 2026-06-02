@@ -1,0 +1,3 @@
+usr/bin/gfx*            usr/libexec/rocm/libhsa-runtime64-tests
+usr/bin/rocrtst64       usr/libexec/rocm/libhsa-runtime64-tests
+debian/bin/run-tests    usr/libexec/rocm/libhsa-runtime64-tests

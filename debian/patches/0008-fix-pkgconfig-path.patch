@@ -1,0 +1,25 @@
+From: Xuanteng Huang <xuanteng.huang@outlook.com>
+Date: Sun, 18 Aug 2024 21:07:05 +0800
+Subject: fix pkgconfig path
+
+fix `pkgconfig` path
+
+Forwarded: not-needed
+---
+ libhsakmt/libhsakmt.pc.in | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/libhsakmt/libhsakmt.pc.in b/libhsakmt/libhsakmt.pc.in
+index 041e81f..21e6396 100644
+--- a/libhsakmt/libhsakmt.pc.in
++++ b/libhsakmt/libhsakmt.pc.in
+@@ -1,7 +1,7 @@
+-prefix=${pcfiledir}/../..
++prefix=usr/
+ exec_prefix=${prefix}
+ libdir=${prefix}/@CMAKE_INSTALL_LIBDIR@
+-includedir=${prefix}/@CMAKE_INSTALL_INCLUDEDIR@
++includedir=${prefix}/include/rocm
+ 
+ Name: libhsakmt
+ Description: HSA Kernel Mode Thunk library for AMD KFD support

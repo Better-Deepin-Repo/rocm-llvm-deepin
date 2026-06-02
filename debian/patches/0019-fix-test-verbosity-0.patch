@@ -1,0 +1,88 @@
+Description: Fix test verbosity level 0
+ VERBOSE_MIN = 0 should disable all header prints, but it was printing
+ them anyway. This patch adds a check for the verbosity level before
+ printing the headers.
+ Forwarding is not needed as this fix is intended to prevent spamming
+ the autopkgtest output.
+
+Author: Bojan Aleksovski <bojan.aleksovski@canonical.com>
+Forwarded: not-needed
+Last-Update: 2026-04-03
+
+diff --git a/rocrtst/suites/test_common/test_base.cc b/rocrtst/suites/test_common/test_base.cc
+index 47cc48e..e31f9de 100755
+--- a/rocrtst/suites/test_common/test_base.cc
++++ b/rocrtst/suites/test_common/test_base.cc
+@@ -78,9 +78,11 @@ static void MakeHeaderStr(const char *inStr, std::string *outStr) {
+ }
+
+ void TestBase::SetupPrint() {
+-  std::string label;
+-  MakeHeaderStr(kSetupLabel, &label);
+-  printf("\n\t%s\n", label.c_str());
++  if (verbosity() >= VERBOSE_STANDARD) {
++    std::string label;
++    MakeHeaderStr(kSetupLabel, &label);
++    printf("\n\t%s\n", label.c_str());
++  }
+ }
+
+ void TestBase::SetUp(void) {
+@@ -93,15 +95,19 @@ void TestBase::SetUp(void) {
+ }
+
+ void TestBase::Run(void) {
+-  std::string label;
+-  MakeHeaderStr(kRunLabel, &label);
+-  printf("\n\t%s\n", label.c_str());
++  if (verbosity() >= VERBOSE_STANDARD) {
++    std::string label;
++    MakeHeaderStr(kRunLabel, &label);
++    printf("\n\t%s\n", label.c_str());
++  }
+ }
+
+ void TestBase::ClosePrint() {
+-  std::string label;
+-  MakeHeaderStr(kCloseLabel, &label);
+-  printf("\n\t%s\n", label.c_str());
++  if (verbosity() >= VERBOSE_STANDARD) {
++    std::string label;
++    MakeHeaderStr(kCloseLabel, &label);
++    printf("\n\t%s\n", label.c_str());
++  }
+ }
+
+ void TestBase::Close(void) {
+@@ -117,20 +123,22 @@ void TestBase::Close(void) {
+
+
+ void TestBase::DisplayResults(void) const {
+-  std::string label;
+-  MakeHeaderStr(kResultsLabel, &label);
+-  printf("\n\t%s\n", label.c_str());
++  if (verbosity() >= VERBOSE_STANDARD) {
++    std::string label;
++    MakeHeaderStr(kResultsLabel, &label);
++    printf("\n\t%s\n", label.c_str());
++  }
+ }
+
+ void TestBase::DisplayTestInfo(void) {
+-  printf("#########################################"
+-                                  "######################################\n");
++  if (verbosity() >= VERBOSE_STANDARD) {
++    printf("#########################################"
++                                    "######################################\n");
+
+-  std::string label;
+-  MakeHeaderStr(kTitleLabel, &label);
+-  printf("\n\t%s\n%s\n", label.c_str(), title().c_str());
++    std::string label;
++    MakeHeaderStr(kTitleLabel, &label);
++    printf("\n\t%s\n%s\n", label.c_str(), title().c_str());
+
+-  if (verbosity() >= VERBOSE_STANDARD) {
+     MakeHeaderStr(kDescriptionLabel, &label);
+     printf("\n\t%s\n%s\n", label.c_str(), description().c_str());
+   }

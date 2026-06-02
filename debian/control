@@ -1,0 +1,64 @@
+Source: rocr-runtime
+Maintainer: Debian ROCm Team <debian-ai@lists.debian.org>
+Uploaders: Mo Zhou <lumin@debian.org>,
+           Étienne Mollier <emollier@debian.org>,
+           Cordell Bloor <cgmb@debian.org>,
+           Xuanteng Huang <xuanteng.huang@outlook.com>,
+           Christian Kastner <ckk@debian.org>,
+           Mario Limonciello <superm1@gmail.com>,
+           Talha Can Havadar <havadartalha@gmail.com>,
+Section: video
+Build-Depends: architecture-is-64-bit,
+               clang-21,
+               clang-tools-21,
+               cmake,
+               debhelper-compat (= 13),
+               libclang-21-dev,
+               libdrm-dev,
+               libelf-dev,
+               libnuma-dev,
+               lld-21,
+               llvm-21-dev,
+               pkgconf,
+               rocm-device-libs-21 <!stage1>,
+               xxd,
+               libamd-smi-dev [amd64] <!stage1>,
+               libhwloc-dev [amd64] <!stage1>,
+               libgtest-dev [amd64] <!stage1>
+Standards-Version: 4.7.4
+Vcs-Browser: https://salsa.debian.org/rocm-team/rocr-runtime
+Vcs-Git: https://salsa.debian.org/rocm-team/rocr-runtime.git
+Homepage: https://github.com/ROCm/rocm-systems/
+
+Package: libhsa-runtime64-1
+Architecture: amd64 arm64 ppc64el
+Multi-Arch: same
+Section: libs
+Depends: ${misc:Depends},
+         ${shlibs:Depends}
+Breaks: libamdhip64-5 (<< 6~), rocm-opencl-icd (<< 6.4)
+Description: HSA Runtime API and runtime for ROCm
+ This library provides user-mode API interfaces necessary for host applications
+ to launch compute kernels to available HSA ROCm kernel agents.
+
+Package: libhsa-runtime-dev
+Architecture: amd64 arm64 ppc64el
+Multi-Arch: same
+Section: libdevel
+Depends: libhsa-runtime64-1 (= ${binary:Version}),
+         ${misc:Depends},
+         ${shlibs:Depends}
+Description: HSA Runtime API and runtime for ROCm - development files
+ This library provides user-mode API interfaces necessary for host applications
+ to launch compute kernels to available HSA ROCm kernel agents.
+ .
+ This package contains the development headers.
+
+Package: libhsa-runtime64-tests
+Section: libdevel
+Architecture: amd64
+Build-Profiles: <!nocheck> <!stage1>
+Depends: libhsa-runtime64-1 (= ${binary:Version}), ${misc:Depends}, ${shlibs:Depends}
+Description: HSA Runtime test suites for ROCm
+ This package provides Runtime test suites for HSA implementation validation and
+ performance testing

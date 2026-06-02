@@ -1,0 +1,138 @@
+From: Talha Can Havadar <talha.can.havadar@canonical.com>
+Date: Tue, 20 Jan 2026 10:06:00 +0200
+Subject: Fix ARM64 build by adding alternatives to x86 intrinsics
+
+The x86 intrinsics _mm_clflush, _mm_sfence, and _mm_mfence are not
+available on ARM64. Add architecture guards to keep existing x86
+behavior and provide ARM64 alternatives using std::atomic_thread_fence
+for memory barriers and DC CIVAC instruction for cache line flush.
+
+Forwarded: yes, https://github.com/ROCm/rocm-systems/pull/2688
+Last-Update: 2026-01-20
+---
+--- a/runtime/hsa-runtime/core/inc/amd_gpu_agent.h
++++ b/runtime/hsa-runtime/core/inc/amd_gpu_agent.h
+@@ -48,6 +48,7 @@
+ #include <vector>
+ #include <list>
+ #include <map>
++#include <atomic>
+ 
+ #include "hsakmt/hsakmt.h"
+ 
+@@ -439,9 +440,17 @@
+   /// @brief Force a WC flush on PCIe devices by doing a write and then read-back
+   __forceinline void PcieWcFlush(void *ptr, size_t size) const {
+     if (!xgmi_cpu_gpu_) {
++#if defined(__x86_64__) || defined(__i386__)
+       _mm_sfence();
++#else
++      std::atomic_thread_fence(std::memory_order_release);
++#endif
+       *((uint8_t*)ptr + size - 1) = *((uint8_t*)ptr + size - 1);
++#if defined(__x86_64__) || defined(__i386__)
+       _mm_mfence();
++#else
++      std::atomic_thread_fence(std::memory_order_seq_cst);
++#endif
+       auto readback = *(reinterpret_cast<volatile uint8_t*>(ptr) + size - 1);
+       UNUSED(readback);
+     }
+--- a/runtime/hsa-runtime/core/util/utils.h
++++ b/runtime/hsa-runtime/core/util/utils.h
+@@ -410,7 +410,14 @@
+   cur += offset;
+   uintptr_t lastline = (uintptr_t)(cur + len - 1) | (cacheline_size - 1);
+   do {
++#if defined(__x86_64__) || defined(__i386__)
+     _mm_clflush((const void*)cur);
++#elif defined(__aarch64__)
++    asm volatile("dc civac, %0" :: "r"(cur) : "memory");
++#else
++    // No cache flush available for this architecture
++    (void)cur;
++#endif
+     cur += cacheline_size;
+   } while (cur <= (const char*)lastline);
+ }
+--- a/runtime/hsa-runtime/core/runtime/amd_blit_kernel.cpp
++++ b/runtime/hsa-runtime/core/runtime/amd_blit_kernel.cpp
+@@ -901,7 +901,12 @@
+   std::atomic_thread_fence(std::memory_order_release);
+   if (queue_->IsDeviceMemRingBuf() && queue_->needsPcieOrdering()) {
+     // Ensure the packet body is written as header may get reordered when writing over PCIE
++#if defined(__x86_64__) || defined(__i386__)
+     _mm_sfence();
++#else
++    std::atomic_thread_fence(std::memory_order_release);
++#endif
++
+   }
+ #if defined(__linux__)
+   __atomic_store_n(&(queue_buffer[index & queue_bitmask_].full_header),
+--- a/runtime/hsa-runtime/core/runtime/amd_aql_queue.cpp
++++ b/runtime/hsa-runtime/core/runtime/amd_aql_queue.cpp
+@@ -474,7 +474,12 @@
+     HSAKMT_CALL(hsaKmtQueueRingDoorbell(queue_id_));
+   } else {
+     // Hardware doorbell supports AQL semantics.
++#if defined(__x86_64__) || defined(__i386__)
+     _mm_sfence();
++#else
++    std::atomic_thread_fence(std::memory_order_release);
++#endif
++
+     *(signal_.hardware_doorbell_ptr) = uint64_t(value);
+     /* signal_ is allocated as uncached so we do not need read-back to flush WC */
+   }
+@@ -1558,7 +1563,11 @@
+   memcpy(&queue_slot[1], &slot_data[1], slot_size_b - sizeof(uint32_t));
+   if (IsDeviceMemRingBuf() && needsPcieOrdering()) {
+     // Ensure the packet body is written as header may get reordered when writing over PCIE
++#if defined(__x86_64__) || defined(__i386__)
+     _mm_sfence();
++#else
++    std::atomic_thread_fence(std::memory_order_release);
++#endif
+   }
+   atomic::Store(&queue_slot[0], slot_data[0], std::memory_order_release);
+ 
+--- a/runtime/hsa-runtime/core/runtime/intercept_queue.cpp
++++ b/runtime/hsa-runtime/core/runtime/intercept_queue.cpp
+@@ -271,7 +271,12 @@
+       ring[barrier & mask].barrier_and.completion_signal = Signal::Convert(async_doorbell_);
+       if (wrapped->IsDeviceMemRingBuf() && needsPcieOrdering()) {
+         // Ensure the packet body is written as header may get reordered when writing over PCIE
++#if defined(__x86_64__) || defined(__i386__)
+         _mm_sfence();
++#else
++        std::atomic_thread_fence(std::memory_order_release);
++#endif
++
+       }
+       atomic::Store(&ring[barrier & mask].barrier_and.header, kBarrierHeader,
+                     std::memory_order_release);
+@@ -318,7 +323,11 @@
+       if (write_index != 0) {
+         if (wrapped->IsDeviceMemRingBuf() && needsPcieOrdering()) {
+           // Ensure the packet body is written as header may get reordered when writing over PCIE
++#if defined(__x86_64__) || defined(__i386__)
+           _mm_sfence();
++#else
++          std::atomic_thread_fence(std::memory_order_release);
++#endif
+         }
+         atomic::Store(&ring[write & mask].packet.header, packets[first_written_packet_index].packet.header,
+                       std::memory_order_release);
+@@ -419,7 +428,11 @@
+ 
+     if (IsDeviceMemRingBuf() && needsPcieOrdering()) {
+       // Ensure the packet body is written as header may get reordered when writing over PCIE
++#if defined(__x86_64__) || defined(__i386__)
+       _mm_sfence();
++#else
++      std::atomic_thread_fence(std::memory_order_release);
++#endif
+     }
+   }
+   i = next_packet_;

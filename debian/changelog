@@ -1,0 +1,382 @@
+rocr-runtime (7.2.4+dfsg-1~exp1) experimental; urgency=medium
+
+  * New upstream version 7.2.4+dfsg
+  * d/copyright: add myself and Mario to copyright
+  * d/copyright: add missing copyright info for virtgpu_drm.h
+  * d/control: fix NMU lintian warning for Talha Can Havadar
+  * d/{control, u/metadata}: update metadata to point super repo
+  * d/control: upgrade standards-version to 4.7.4
+  * d/control: fix lintian, remove redundant Priority
+
+ -- Talha Can Havadar <havadartalha@gmail.com>  Mon, 01 Jun 2026 18:15:36 +0000
+
+rocr-runtime (7.2.3+dfsg-1~exp1) experimental; urgency=medium
+
+  * New upstream version 7.2.3+dfsg
+  * d/watch: update watch file to point rocm-systems repo
+  * d/patches: merge with ubuntu patches
+  * d/p/0017-enable-building-rocrtst-as-part-of-rocr.patch: refresh
+    for new CMakeLists
+  * d/control: fix lintian, redundant Rules-Requires-Root: no
+  * d/salsa-ci.yml: skip i386 builds in CI
+  * debian: add libhsa-runtime64-tests and test binaries.
+    Added new debian/bin/run-tests to follow the convention we have in rocm
+    packages.
+    Updated d/rules to enable test builds
+  * d/libhsa-runtime64-1.symbols: fix some of the symbols
+  * d/rules: stricter symbols check with level 4
+  * d/*.lintian-overrides: add lintian overrides.
+    Adding lintian-overrides for libhsa-runtime-dev and
+    libhsa-runtime64-tests packages with descriptions as they are
+    intentional.
+  * d/control: add version restriction for libamdhip64-5 breaks
+  * d/rules: only skip stripping .hsaco files and strip rocrtst64
+
+ -- Talha Can Havadar <talha.can.havadar@canonical.com>  Wed, 20 May 2026 21:58:30 +0200
+
+rocr-runtime (7.2.2+dfsg-1~exp2) experimental; urgency=medium
+
+  * Refresh memory barriers patch to fix arm64 FTBFS
+  * d/control: Drop riscv64 arch
+
+ -- Mario Limonciello <superm1@debian.org>  Wed, 15 Apr 2026 07:10:29 -0500
+
+rocr-runtime (7.2.2+dfsg-1~exp1) experimental; urgency=medium
+
+  * New upstream version.
+  * Refresh patches
+  * update symbols
+  * Add usr/share/doc/hsa-rocr/LICENSE.md to not-installed
+  * refresh copyright
+  * d/control: Add priority
+
+ -- Mario Limonciello <superm1@debian.org>  Tue, 14 Apr 2026 23:09:03 -0500
+
+rocr-runtime (6.4.3+dfsg-5) unstable; urgency=medium
+
+  * d/control: update standards version to 4.7.3
+  * d/control: drop redundant priority specification
+  * d/control: drop redundant rules-requires-root specification
+  * Drop libhsakmt1 and libhsakmt-dev binary packages as they
+    may not have a stable interface going forward
+    * Drop d/p/0007-shared-libhsakmt.patch
+    * Drop d/p/0009-fix-missing-symbols.patch
+
+ -- Cordell Bloor <cgmb@debian.org>  Wed, 18 Feb 2026 17:22:23 -0700
+
+rocr-runtime (6.4.3+dfsg-4) unstable; urgency=medium
+
+  * Re-introduces Breaks for libamdhip64-5, rocm-opencl-icd.
+    This were erroneously removed. Details of the breakage are documented
+    in #1118618.
+
+ -- Christian Kastner <ckk@debian.org>  Thu, 06 Nov 2025 20:18:43 +0100
+
+rocr-runtime (6.4.3+dfsg-3) unstable; urgency=medium
+
+  * Remove Breaks libamdhip64-5 and rocm-opencl-icd annotations from
+    libhsa-runtime64-1 until the libamdhip64-5 to libamdhip64-6
+    transition has completed (Closes: #1118939)
+
+ -- Cordell Bloor <cgmb@debian.org>  Sat, 25 Oct 2025 11:54:22 -0600
+
+rocr-runtime (6.4.3+dfsg-2) unstable; urgency=medium
+
+  * Add d/p/0012-strip-x86-intrinsics-from-xdna-support.patch and
+    d/p/0013-add-arm-and-ppc-memory-barriers.patch to fix FTBFS on
+    arm64 and ppc64el (Closes: #1118633)
+  * Add Breaks libamdhip64-5 and rocm-opencl-icd annotations to
+    libhsa-runtime64-1 as the introduction of support for generic
+    ISAs has broken key assumptions in the ROCm Common Language Runtime.
+
+ -- Cordell Bloor <cgmb@debian.org>  Sat, 25 Oct 2025 03:21:31 -0600
+
+rocr-runtime (6.4.3+dfsg-1) unstable; urgency=medium
+
+  * Upload to unstable
+  * Update from LLVM 20 to LLVM 21
+  * Remove unnecessary LLVM MLIR packages from B-D
+  * Add riscv64 to build architectures
+  * Update d/gbp.conf to follow DEP-14
+  * Drop inactive maintainers from uploaders
+  * Fix CMake configure flags that were dropped by mistake in 6.4.3+dfsg-1~exp1
+  * Add d/p/0011-remove-gfx940-and-gfx941-support.patch to remove gfx940 and
+    gfx941 build targets. These architectures were never used for production
+    hardware and support has been dropped from LLVM.
+
+ -- Cordell Bloor <cgmb@debian.org>  Fri, 17 Oct 2025 12:18:15 -0600
+
+rocr-runtime (6.4.3+dfsg-1~exp2) experimental; urgency=medium
+
+  * Add d/p/0009-fix-missing-symbols.patch to fix the missing
+    symbols hsaKmtRegisterGraphicsHandleToNodesExt and
+    hsaKmtCreateQueueExt in libhsakmt1.
+  * Add d/p/0010-fix-missing-stdint.h.patch to fix build with
+    GCC 15 (Closes: #1097800)
+
+ -- Cordell Bloor <cgmb@debian.org>  Fri, 12 Sep 2025 20:43:52 -0600
+
+rocr-runtime (6.4.3+dfsg-1~exp1) experimental; urgency=medium
+
+  [ Cordell Bloor ]
+  * New upstream version 6.4.3+dfsg
+    * src:rocr-runtime has subsumed src:roct-thunk-interface
+    * libhsakmt1 and libhsakmt-dev are now produced by
+      src:rocr-runtime package build
+    * Updated symbols, refreshed patches for new upstream version,
+      and copied applicable patches from src:roct-thunk-interface
+  * Update Build-Depends from clang-17 to clang-20
+  * Add libnuma-dev to Build-Depends
+  * Update standards version to 4.7.2
+    * No changes required
+
+  [ Kentaro Hayashi ]
+  * Use d/watch 5
+
+ -- Cordell Bloor <cgmb@debian.org>  Wed, 27 Aug 2025 17:06:07 -0600
+
+rocr-runtime (6.1.2-3) unstable; urgency=medium
+
+  * Limit architectures to amd64 arm64 ppc64el
+  * Add Mario to uploaders
+
+ -- Mario Limonciello <superm1@gmail.com>  Mon, 03 Feb 2025 23:06:11 -0600
+
+rocr-runtime (6.1.2-2) unstable; urgency=medium
+
+  * Add patch to fix FTBFS on arm64, ppc64el.
+
+ -- Christian Kastner <ckk@debian.org>  Fri, 18 Oct 2024 20:28:38 +0200
+
+rocr-runtime (6.1.2-1) unstable; urgency=medium
+
+  * Upload to unstable.
+
+ -- Christian Kastner <ckk@debian.org>  Thu, 17 Oct 2024 16:40:21 +0200
+
+rocr-runtime (6.1.2-1~exp1) experimental; urgency=medium
+
+  [ Xuanteng Huang ]
+  * New upstream version 6.1.2
+  * Add newly introduced public symbols
+  * Refresh patches
+  * Add myself to Uploaders
+
+  [ Christian Kastner ]
+  * Add myself to Uploaders
+
+ -- Xuanteng Huang <xuanteng.huang@outlook.com>  Mon, 26 Aug 2024 21:29:48 +0800
+
+rocr-runtime (5.7.1-3) unstable; urgency=medium
+
+  [ Cordell Bloor ]
+  * d/control: restrict build to 64-bit architectures
+
+  [ Helmut Grohne ]
+  * Mark all packages Multi-Arch: same (Closes: #1078913)
+
+  [ Étienne Mollier ]
+  * d/control: declare compliance to standards version 4.7.0.
+
+ -- Étienne Mollier <emollier@debian.org>  Wed, 21 Aug 2024 13:34:47 +0200
+
+rocr-runtime (5.7.1-2) unstable; urgency=medium
+
+  * Migrate to unstable.
+
+ -- Cordell Bloor <cgmb@slerp.xyz>  Mon, 18 Mar 2024 18:46:07 -0600
+
+rocr-runtime (5.7.1-2~exp1) experimental; urgency=medium
+
+  * Add d/p/0003-expand-endian-detection.patch to fix arm64 and ppc64el
+    endianness detection logic.
+  * Add d/p/0006-initialize-chip-revision.patch to fix failing assertions
+    on Rembrandt hardware.
+  * Add d/gbp.conf to ensure use of pristine-tar.
+
+ -- Cordell Bloor <cgmb@slerp.xyz>  Sun, 17 Mar 2024 23:51:29 -0600
+
+rocr-runtime (5.7.1-1) unstable; urgency=medium
+
+  * Migrate to unstable.
+  * d/control: update B-D from pkg-config to pkgconf
+  * d/p/0004-extend-isa-compatibility-check.patch: fix IsVersionCompatible
+    results for gfx1012. The gfx1012 ISA is exactly equivalent to gfx1011.
+  * Upstream version 5.7.1 includes hsa_amd_memory_async_copy_on_engine
+    (Closes: #1022871).
+
+ -- Cordell Bloor <cgmb@slerp.xyz>  Thu, 22 Feb 2024 21:19:35 -0700
+
+rocr-runtime (5.7.1-1~exp2) experimental; urgency=medium
+
+  * Add patch to link to drm_amdgpu to fix undefined symbols.
+  * Fix missing paths in exported hsa-runtime64 CMake targets.
+  * d/rules: cleanup unnecessary options
+
+ -- Cordell Bloor <cgmb@slerp.xyz>  Tue, 09 Jan 2024 02:43:41 -0700
+
+rocr-runtime (5.7.1-1~exp1) experimental; urgency=medium
+
+  [ Cordell Bloor ]
+  * New upstream version 5.7.1.
+  * Update Build-Depends for clang-17.
+  * Update upstream URL.
+
+  [ Mo Zhou ]
+  * Add the missing B-D pkg-config to fix FTBFS.
+  * Upload to experimental.
+
+ -- Cordell Bloor <cgmb@slerp.xyz>  Sun, 07 Jan 2024 18:13:42 -0700
+
+rocr-runtime (5.2.3-6) unstable; urgency=medium
+
+  * Add self to uploaders.
+  * Add d/p/0005-disable-xnack-query-print.patch to disable message:
+      KFD does not support xnack mode query.
+      ROCr must assume xnack is disabled.
+    (Closes: #1056170)
+
+ -- Cordell Bloor <cgmb@slerp.xyz>  Fri, 24 Nov 2023 14:36:38 -0700
+
+rocr-runtime (5.2.3-5) unstable; urgency=medium
+
+  * Team upload.
+
+  * d/p/0004-extend-isa-compatibility-check.patch: fix assertion when
+    gfx906 falls back to gfx900.
+
+ -- Cordell Bloor <cgmb@slerp.xyz>  Sat, 29 Jul 2023 15:41:52 -0600
+
+rocr-runtime (5.2.3-4) unstable; urgency=medium
+
+  [ Cordell Bloor ]
+  * d/p/0004-extend-isa-compatibility-check.patch: cosmetic update.
+    This is a superficial update to the variable naming for clarity. There
+    are no functional changes to the program behaviour.
+
+  [ Étienne Mollier ]
+  * Migrate ISA compatibility improvements to unstable.
+    Thanks to Cordell Bloor
+
+ -- Étienne Mollier <emollier@debian.org>  Wed, 05 Jul 2023 20:57:23 +0200
+
+rocr-runtime (5.2.3-4~exp1) experimental; urgency=medium
+
+  * Team upload.
+
+  * Improve ISA compatibility checks to enable loading gfx900, gfx1010 and
+    gfx1030 kernels on other compatible hardware.
+  * d/copyright: correct my email address
+
+ -- Cordell Bloor <cgmb@slerp.xyz>  Thu, 25 May 2023 17:08:01 -0600
+
+rocr-runtime (5.2.3-3) unstable; urgency=medium
+
+  * Team upload.
+
+  * add 0003-fix-static-initialization-order.patch
+    to prevent crash in hsa_init (Closes: #1031089)
+  * update d/copyright
+  * d/control: update standards version
+
+ -- Cordell Bloor <cgmb@slerp.xyz>  Sun, 19 Feb 2023 03:34:29 -0700
+
+rocr-runtime (5.2.3-2) unstable; urgency=medium
+
+  * 0002-remove-libhsa-amd-aqlprofile64.so-loading.patch: add;
+    cancel noise caused by missing non-free library in build logs.
+    Thanks to Cordell Bloor (Closes: #1024791)
+
+ -- Étienne Mollier <emollier@debian.org>  Sat, 14 Jan 2023 11:49:05 +0100
+
+rocr-runtime (5.2.3-1) unstable; urgency=medium
+
+  * Migrate ROCm 5.2.3 to unstable.
+  * d/control: bump build dependency on rocm-device-libs to >=5.2.
+  * d/control: bump build dependencies to llvm 15.
+  * d/control: adjust to new llvm packages layout.
+
+ -- Étienne Mollier <emollier@debian.org>  Tue, 18 Oct 2022 19:16:28 +0200
+
+rocr-runtime (5.2.3-1~0exp0) experimental; urgency=medium
+
+  * New upstream version
+  * Standards-Version: 4.6.1 (routine-update)
+  * Reorder sequence of d/control fields by cme (routine-update)
+  * Add salsa-ci file (routine-update)
+  * Rules-Requires-Root: no (routine-update)
+  * Set upstream metadata fields.  (routine-update)
+  * d/control: add myself to uploaders.
+  * d/control: bump versioned build-dependency libhsakmt-dev to 5.2.
+  * d/libhsa-runtime*.install: update installation paths; libraries are now
+    located in a multiarch friendly location.
+  * d/copyright: remove redundant glob pattern.
+
+ -- Étienne Mollier <emollier@debian.org>  Tue, 06 Sep 2022 21:58:59 +0200
+
+rocr-runtime (5.1.0-2) unstable; urgency=medium
+
+  * Disable IMAGE_SUPPORT for non-amd64 architectures.
+
+ -- Mo Zhou <lumin@debian.org>  Fri, 08 Apr 2022 10:26:29 -0400
+
+rocr-runtime (5.1.0-1) unstable; urgency=medium
+
+  * New upstream version 5.1.0
+  * Bump version requirement of ROCm B-D to (>= 5.1.0~).
+
+ -- Mo Zhou <lumin@debian.org>  Thu, 07 Apr 2022 12:42:34 -0400
+
+rocr-runtime (5.0.0-1) unstable; urgency=medium
+
+  [ Maxime Chambonnet ]
+  * New upstream version 5.0.0
+  * patched cmake to find devlibs
+  * Adapted bitcode dir to /usr/lib/triple
+  * Update LLVM B-D to version 14
+  * Fixed typo in d/control
+
+  [ Mo Zhou ]
+  * Add requirement (>= 5.0.0~) for B-D libhsakmt-dev and rocm-device-libs.
+  * Don't install the duplicated license file.
+  * Upload to unstable.
+
+ -- Mo Zhou <lumin@debian.org>  Mon, 14 Feb 2022 16:24:34 -0500
+
+rocr-runtime (4.5.2-1) experimental; urgency=medium
+
+  [ Maxime Chambonnet ]
+  * New upstream version 4.5.2
+  * Added "Build-Depends-Package" in debian/*.symbols
+  * Passed the hardening flag in debian/rules
+  * Removed dropped files in debian/copyright
+  * Debian standards 4.4.1 --> 4.6.0
+  * Added myself to uploaders
+  * propagated soname rollback to symbol
+  * Remove uupdate from d/watch
+  * Explicitly remove temporary cmake building directory for object files.
+
+  [ Mo Zhou ]
+  * Add the d/watch file.
+  * Add the missing Clang-13 and LLVM-13 build dependencies.
+  * Add the missing B-D: xxd and rocm-device-libs.
+  * d/rules: [CMake] Specify BITECODE_DIR variable.
+  * Add missing B-D on lld-13.
+  * Update maintainer address to debian-ai@l.d.o
+  * Refresh copyright with cme/manual fix.
+  * Apply wrap-and-sort.
+  * Upload to experimental.
+
+ -- Mo Zhou <lumin@debian.org>  Thu, 03 Feb 2022 20:01:52 -0500
+
+rocr-runtime (3.5.0-1~exp1) experimental; urgency=medium
+
+  * Initial release. (Closes: #960981)
+
+  [ Mo Zhou ]
+  * Initial packaging.
+
+  [ Norbert Preining ]
+  * Update to 3.5.0.
+
+ -- Norbert Preining <norbert@preining.info>  Wed, 03 Jun 2020 12:49:06 +0900

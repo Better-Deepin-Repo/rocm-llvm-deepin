@@ -1,0 +1,15 @@
+#!/bin/sh
+
+testsdir="/usr/libexec/rocm/libhsa-runtime64-tests"
+
+# If autopkgtest called us, pass some extra options if not set
+if [ -n "$AUTOPKGTEST_ARTIFACTS" ]; then
+    # Save output as XML to artifacts, for download
+    [ -n "${GTEST_OUTPUT:-}" ] || export GTEST_OUTPUT="xml:${AUTOPKGTEST_ARTIFACTS}/"
+fi
+
+# Export test data location
+export ROCRTST_KERNELS_PATH="/usr/libexec/rocm/libhsa-runtime64-tests"
+
+# Pass on all arguments to this script to the test binary
+"$testsdir"/rocrtst64 "$@"
