@@ -7,6 +7,8 @@ rocr-runtime (7.2.4+dfsg-1~exp1) experimental; urgency=medium
   * d/{control, u/metadata}: update metadata to point super repo
   * d/control: upgrade standards-version to 4.7.4
   * d/control: fix lintian, remove redundant Priority
+  * Force a stage-1 bootstrap build by disabling image and rocrtst
+    builds and omitting their build dependencies.
 
  -- Talha Can Havadar <havadartalha@gmail.com>  Mon, 01 Jun 2026 18:15:36 +0000
 

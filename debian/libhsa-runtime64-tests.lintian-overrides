@@ -1,8 +1,0 @@
-# .hsaco files are AMDGPU HSA Code Objects (GPU kernels), not host shared
-# libraries. They are loaded by the runtime via hsa_executable_load_code_object
-# and intentionally have no NEEDED entries or typical .so prerequisites.
-# They target the AMDGPU ELF machine type (not the host arch) and are excluded
-# from dh_strip and dh_dwz in debian/rules for the same reason.
-libhsa-runtime64-tests: shared-library-lacks-prerequisites [usr/libexec/rocm/libhsa-runtime64-tests/*/*.hsaco]
-libhsa-runtime64-tests: binary-from-other-architecture [usr/libexec/rocm/libhsa-runtime64-tests/*/*.hsaco]
-libhsa-runtime64-tests: unstripped-binary-or-object [usr/libexec/rocm/libhsa-runtime64-tests/*/*.hsaco]

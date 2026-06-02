@@ -1,5 +1,0 @@
-Test-Command: rocm-test-launcher /usr/libexec/rocm/libhsa-runtime64-tests/run-tests -v 0
-Features: test-name=libhsa-runtime64-tests
-Depends: pkg-rocm-tools, libhsa-runtime64-tests
-Restrictions: skippable, allow-stderr
-Architecture: amd64
