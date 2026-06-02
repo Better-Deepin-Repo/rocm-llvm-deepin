@@ -1,0 +1,23 @@
+From: Cordell Bloor <cgmb@debian.org>
+Date: Mon, 22 Sep 2025 15:37:39 -0600
+Subject: fix devicelibs path
+
+---
+ amd/hipcc/src/hipBin_amd.h | 8 +-------
+ 1 file changed, 1 insertion(+), 7 deletions(-)
+
+--- a/amd/hipcc/src/hipBin_amd.h
++++ b/amd/hipcc/src/hipBin_amd.h
+@@ -323,12 +323,6 @@
+     amdgcnBitcode /= "amdgcn/bitcode";
+     if (fs::exists(amdgcnBitcode)) {
+       deviceLibPath = amdgcnBitcode.string();
+-    } else {
+-      // This path is to support an older build of the device library
+-      // TODO(hipcc): To be removed in the future.
+-      fs::path lib = roccmPath;
+-      lib /= "lib";
+-      deviceLibPath = lib.string();
+     }
+   }
+   return deviceLibPath;

@@ -1,384 +1,226 @@
-rocr-runtime (7.2.4+dfsg-1~exp1) experimental; urgency=medium
+rocm-llvm (7.2.4+dfsg-1~exp1) experimental; urgency=medium
 
   * New upstream version 7.2.4+dfsg
-  * d/copyright: add myself and Mario to copyright
-  * d/copyright: add missing copyright info for virtgpu_drm.h
-  * d/control: fix NMU lintian warning for Talha Can Havadar
-  * d/{control, u/metadata}: update metadata to point super repo
-  * d/control: upgrade standards-version to 4.7.4
-  * d/control: fix lintian, remove redundant Priority
-  * Force a stage-1 bootstrap build by disabling image and rocrtst
-    builds and omitting their build dependencies.
+  * d/copyright: declare Sun Microsystems for ocml erf/lgamma sources.
+  * d/{not-installed, hipcc.{links, install}}: install hipconfig binary
+    hipconfig binary doesn't seem to be same as hipcc as before, now it
+    provides more utility outputs with different set of commands so simply
+    linking it doesn't work.
+  * d/t/hipconfig.sh: extend hipconfig tests to cover additional commands
+  * d/{ci/experimental.sources, salsa-ci.yml}: use sources file
+    Using sources file as single line entry silently causes autopkgtests to
+    fail.
 
- -- Talha Can Havadar <havadartalha@gmail.com>  Mon, 01 Jun 2026 18:15:36 +0000
+ -- Talha Can Havadar <havadartalha@gmail.com>  Sun, 31 May 2026 16:25:36 +0000
 
-rocr-runtime (7.2.3+dfsg-1~exp1) experimental; urgency=medium
+rocm-llvm (7.2.3+dfsg-1~exp1) experimental; urgency=medium
 
+  [ Talha Can Havadar ]
   * New upstream version 7.2.3+dfsg
-  * d/watch: update watch file to point rocm-systems repo
-  * d/patches: merge with ubuntu patches
-  * d/p/0017-enable-building-rocrtst-as-part-of-rocr.patch: refresh
-    for new CMakeLists
-  * d/control: fix lintian, redundant Rules-Requires-Root: no
-  * d/salsa-ci.yml: skip i386 builds in CI
-  * debian: add libhsa-runtime64-tests and test binaries.
-    Added new debian/bin/run-tests to follow the convention we have in rocm
-    packages.
-    Updated d/rules to enable test builds
-  * d/libhsa-runtime64-1.symbols: fix some of the symbols
+  * d/p/upstream-llvm-compatibility: remove not needed reinterpret_cast.
+    This fixes offload compression issue we see in ROCm stack with LLVM-21
+    (LP: #2142813)
+  * d/copyright: add libsycl and orc-rt into excluded files
+  * d/patches: drop LLVM 21 compat patches superseded by upstream and
+    LLVM 22 bump.
+    Remove four patches that are no longer needed:
+    cmake-4-compat.patch
+    comgr-fix-createAsmStreamer.patch
+    fix-DiagnosticOptions-IntrusiveRefCntPtr.patch
+      These three carry Applied-Upstream headers pointing at commits
+      that are already present in the 7.2.3 source tree, so they no
+      longer apply cleanly nor add anything.
+    upstream-llvm-compatibility.patch
+      Worked around LLVM 21's removal of CompressedOffloadBundle::
+      V3HeaderSize and an unsigned-char Header cast. With the rest of
+      the package being bumped to LLVM 22, this LLVM-21-targeted
+      workaround is no longer applicable.
+  * debian: bump LLVM toolchain dependency from 21 to 22.
+    ROCm 7.2.3's device-libs source uses AMDGPU builtins (the GFX12.5
+    cluster intrinsics, among others) that are not present in clang-21.
+    Move the package to the LLVM 22 toolchain available in resolute.
+    debian/control: Bump b-d from 21 to 22 and the equivalent runtime deps
+     Rename the rocm-device-libs-21 to rocm-device-libs-22
+    debian/rules: Point comgr's CMAKE_PREFIX_PATH at /usr/lib/llvm-22.
+     Add a DEVICE_LIBS_CONFIG_FLAGS entry that force-enables the AMDGPU
+     subtarget features lerp-inst, cube-insts, qsad-insts and sad-insts
+     via CLANG_OPTIONS_APPEND.
+  * d/patches: refresh after upstream bump
+  * d/patches: adapt comgr to LLVM 22 clang/Options/ split.
+    LLVM 22 lifted the clang options machinery out of the Driver library
+    into its own clang/Options tree.
+    Without the patch, comgr-compiler.cpp fails to compile against
+    libclang-cpp22-dev with "clang/Driver/Options.h: No such file or
+    directory" and, once the include is fixed, "'GetResourcesPath' is not
+    a member of 'clang::driver::Driver'".
+    Upstream ROCm has done the equivalent migration on amd-staging, so
+    this should drop out the next time the package syncs against an
+    upstream that includes the change.
   * d/rules: stricter symbols check with level 4
-  * d/*.lintian-overrides: add lintian overrides.
-    Adding lintian-overrides for libhsa-runtime-dev and
-    libhsa-runtime64-tests packages with descriptions as they are
-    intentional.
-  * d/control: add version restriction for libamdhip64-5 breaks
-  * d/rules: only skip stripping .hsaco files and strip rocrtst64
+  * d/p/fix-hip-clang-path.patch: bump to llvm-22
+  * d/copyright: all licensing moved from NCSA-AMD to Apache 2.
+    Upstream changed the licensing of the files in this package from
+    NCSA-AMD to Apache-2-with-LLVM-exceptions following the upstream llvm
+    project. Reflecting this change in copyright and also adding missing
+    authors for debian/* files.
+  * d/t/{control,amd-comgr-cmake.sh}: add amd_comgr find_package test
+  * d/control: remove riscv64 from targets as it is FTBFS.
+    This package with the current state, fails to build due to missing
+    dependencies on riscv64. Ideally we can split rocm-device-libs into
+    separate source package and add riscv64 target back for the rest but
+    removing riscv64 targets from this source package for now.
 
- -- Talha Can Havadar <talha.can.havadar@canonical.com>  Wed, 20 May 2026 21:58:30 +0200
+  [ Igor Luppi ]
+  * d/control: Fix dependency to explicitly require libstdc++-16-dev for
+    ROCm v7.1.0 stack (LP: #2143637)
 
-rocr-runtime (7.2.2+dfsg-1~exp2) experimental; urgency=medium
+ -- Talha Can Havadar <talha.can.havadar@canonical.com>  Fri, 22 May 2026 09:03:11 +0200
 
-  * Refresh memory barriers patch to fix arm64 FTBFS
-  * d/control: Drop riscv64 arch
+rocm-llvm (7.0.2+dfsg-3) unstable; urgency=medium
 
- -- Mario Limonciello <superm1@debian.org>  Wed, 15 Apr 2026 07:10:29 -0500
+  * d/control: libamd-comgr3 now depends on libclang-common-21-dev
+    to provide opencl-c-base.h (Closes: #1120886)
 
-rocr-runtime (7.2.2+dfsg-1~exp1) experimental; urgency=medium
+ -- Cordell Bloor <cgmb@debian.org>  Thu, 05 Feb 2026 16:46:09 -0700
 
-  * New upstream version.
-  * Refresh patches
-  * update symbols
-  * Add usr/share/doc/hsa-rocr/LICENSE.md to not-installed
-  * refresh copyright
-  * d/control: Add priority
+rocm-llvm (7.0.2+dfsg-2) unstable; urgency=medium
 
- -- Mario Limonciello <superm1@debian.org>  Tue, 14 Apr 2026 23:09:03 -0500
+  * Change HIP_CLANG_PATH from /usr/bin to /usr/lib/llvm-21/bin because
+    this improves compatibility with tooling that expects the compiler
+    name to be clang++ without any version suffix.
+    * It is no longer necessary to explicitly specify HIPCXX for CMake
+      when using the HIP language if hipcc is installed (Closes: #1118435)
+  * Set minimum libamdhip64-dev version for hipcc to 6.4.3 as a workaround
+    for underspecified dependencies in the rocm-hipamd 5.7.1 autopkgtests
 
-rocr-runtime (6.4.3+dfsg-5) unstable; urgency=medium
+ -- Cordell Bloor <cgmb@debian.org>  Wed, 26 Nov 2025 17:47:24 -0700
 
-  * d/control: update standards version to 4.7.3
-  * d/control: drop redundant priority specification
-  * d/control: drop redundant rules-requires-root specification
-  * Drop libhsakmt1 and libhsakmt-dev binary packages as they
-    may not have a stable interface going forward
-    * Drop d/p/0007-shared-libhsakmt.patch
-    * Drop d/p/0009-fix-missing-symbols.patch
+rocm-llvm (7.0.2+dfsg-1) unstable; urgency=medium
 
- -- Cordell Bloor <cgmb@debian.org>  Wed, 18 Feb 2026 17:22:23 -0700
+  [ Sakura286 ]
+  * Add d/p/use-signed-char-in-comgr-build.patch to fix FTBFS
+    on platforms that default to char being unsigned (Closes: #1118511)
 
-rocr-runtime (6.4.3+dfsg-4) unstable; urgency=medium
+  [ Cordell Bloor ]
+  * New upstream version 7.0.2+dfsg
 
-  * Re-introduces Breaks for libamdhip64-5, rocm-opencl-icd.
-    This were erroneously removed. Details of the breakage are documented
-    in #1118618.
+ -- Cordell Bloor <cgmb@debian.org>  Fri, 24 Oct 2025 16:47:26 -0600
 
- -- Christian Kastner <ckk@debian.org>  Thu, 06 Nov 2025 20:18:43 +0100
-
-rocr-runtime (6.4.3+dfsg-3) unstable; urgency=medium
-
-  * Remove Breaks libamdhip64-5 and rocm-opencl-icd annotations from
-    libhsa-runtime64-1 until the libamdhip64-5 to libamdhip64-6
-    transition has completed (Closes: #1118939)
-
- -- Cordell Bloor <cgmb@debian.org>  Sat, 25 Oct 2025 11:54:22 -0600
-
-rocr-runtime (6.4.3+dfsg-2) unstable; urgency=medium
-
-  * Add d/p/0012-strip-x86-intrinsics-from-xdna-support.patch and
-    d/p/0013-add-arm-and-ppc-memory-barriers.patch to fix FTBFS on
-    arm64 and ppc64el (Closes: #1118633)
-  * Add Breaks libamdhip64-5 and rocm-opencl-icd annotations to
-    libhsa-runtime64-1 as the introduction of support for generic
-    ISAs has broken key assumptions in the ROCm Common Language Runtime.
-
- -- Cordell Bloor <cgmb@debian.org>  Sat, 25 Oct 2025 03:21:31 -0600
-
-rocr-runtime (6.4.3+dfsg-1) unstable; urgency=medium
+rocm-llvm (7.0.1+dfsg-1) unstable; urgency=medium
 
   * Upload to unstable
-  * Update from LLVM 20 to LLVM 21
-  * Remove unnecessary LLVM MLIR packages from B-D
   * Add riscv64 to build architectures
+  * Limit libamd-comgr3 and libamd-comgr-dev to architectures
+    with driver support for HSA_AMD
+
+ -- Cordell Bloor <cgmb@debian.org>  Fri, 17 Oct 2025 12:25:52 -0600
+
+rocm-llvm (7.0.1+dfsg-1~exp2) experimental; urgency=medium
+
+  * rocm-device-libs-21: move CMake files to from the global
+    library path to /usr/lib/llvm-21/lib/cmake/ to avoid
+    conflicts with rocm-device-libs-17 and rocm-device-libs-20
+  * hipcc: update manpage
   * Update d/gbp.conf to follow DEP-14
-  * Drop inactive maintainers from uploaders
-  * Fix CMake configure flags that were dropped by mistake in 6.4.3+dfsg-1~exp1
-  * Add d/p/0011-remove-gfx940-and-gfx941-support.patch to remove gfx940 and
-    gfx941 build targets. These architectures were never used for production
-    hardware and support has been dropped from LLVM.
+    https://dep-team.pages.debian.net/deps/dep14/
 
- -- Cordell Bloor <cgmb@debian.org>  Fri, 17 Oct 2025 12:18:15 -0600
+ -- Cordell Bloor <cgmb@debian.org>  Thu, 09 Oct 2025 10:43:52 -0600
 
-rocr-runtime (6.4.3+dfsg-1~exp2) experimental; urgency=medium
+rocm-llvm (7.0.1+dfsg-1~exp1) experimental; urgency=medium
 
-  * Add d/p/0009-fix-missing-symbols.patch to fix the missing
-    symbols hsaKmtRegisterGraphicsHandleToNodesExt and
-    hsaKmtCreateQueueExt in libhsakmt1.
-  * Add d/p/0010-fix-missing-stdint.h.patch to fix build with
-    GCC 15 (Closes: #1097800)
+  * New upstream version 7.0.1+dfsg
+  * Update copyright file
+    * Fix comgr license text. The NCSA license used for comgr
+      prohibits using the name of Advanced Micro Devices, Inc.,
+      for endorsements, but this was not previously reflected
+      in the copyright file.
+  * Update from LLVM 20 to LLVM 21
+    * Drop rocm-device-libs-20 and add rocm-device-libs-21
+    * Add compatibility patches for comgr backported from upstream
+      commits, as the rocm-llvm upstream is based on LLVM 20:
+      * d/p/comgr-fix-createAsmStreamer.patch
+      * d/p/fix-DiagnosticOptions-IntrusiveRefCntPtr.patch
+  * Replace perl hipconfig and hipcc scripts with precompiled
+    executables, as the perl versions have been removed upstream.
+    * Move hipcc from libdevel section to devel section.
+    * Replace hipconfig with symbolic link to hipcc. The name of
+      the command is used to choose the operation performed.
+    * Drop perl script patches:
+      * d/p/specify-compiler-version-and-option.patch
+      * d/p/add-hipvars-to-perl-include-path.patch
+      * d/p/fix-HIP_version.patch
+      * d/p/use-Debian-FHS-to-find-runtime-components.patch
+    * Add d/p/specify-clang-version.patch to direct hipcc to use
+      LLVM 21.
+    * Add d/p/fix-devicelibs-path.patch to ensure hipcc does not
+      pass clang a non-existant path to the ROCm device libs. This
+      ensures that clang will search in the system default locations
+      for the device libraries.
+    * Add fix-hip-clang-path.patch to ensure that hipcc considers
+      /usr/bin when searching for clang.
+  * d/rules: fix path to AMDDeviceLibs on non-x86 systems
+  * d/copyright: update my email address
+  * Update standards version to 4.7.2. No changes required.
 
- -- Cordell Bloor <cgmb@debian.org>  Fri, 12 Sep 2025 20:43:52 -0600
+ -- Cordell Bloor <cgmb@debian.org>  Sun, 28 Sep 2025 02:38:25 -0600
 
-rocr-runtime (6.4.3+dfsg-1~exp1) experimental; urgency=medium
+rocm-llvm (6.4.3+dfsg-1~exp3) experimental; urgency=medium
 
-  [ Cordell Bloor ]
+  * Re-upload with rocm-llvm_6.4.3+dfsg.orig.tar.xz
+
+ -- Cordell Bloor <cgmb@debian.org>  Fri, 15 Aug 2025 04:04:26 -0600
+
+rocm-llvm (6.4.3+dfsg-1~exp2) experimental; urgency=medium
+
+  * Add d/p/add-hipvars-to-perl-include-path.patch to fix use of hipvars
+    in hipcc and hipconfig.
+
+ -- Cordell Bloor <cgmb@debian.org>  Fri, 15 Aug 2025 00:54:53 -0600
+
+rocm-llvm (6.4.3+dfsg-1~exp1) experimental; urgency=medium
+
   * New upstream version 6.4.3+dfsg
-    * src:rocr-runtime has subsumed src:roct-thunk-interface
-    * libhsakmt1 and libhsakmt-dev are now produced by
-      src:rocr-runtime package build
-    * Updated symbols, refreshed patches for new upstream version,
-      and copied applicable patches from src:roct-thunk-interface
-  * Update Build-Depends from clang-17 to clang-20
-  * Add libnuma-dev to Build-Depends
-  * Update standards version to 4.7.2
-    * No changes required
-
-  [ Kentaro Hayashi ]
-  * Use d/watch 5
-
- -- Cordell Bloor <cgmb@debian.org>  Wed, 27 Aug 2025 17:06:07 -0600
-
-rocr-runtime (6.1.2-3) unstable; urgency=medium
-
-  * Limit architectures to amd64 arm64 ppc64el
-  * Add Mario to uploaders
-
- -- Mario Limonciello <superm1@gmail.com>  Mon, 03 Feb 2025 23:06:11 -0600
-
-rocr-runtime (6.1.2-2) unstable; urgency=medium
-
-  * Add patch to fix FTBFS on arm64, ppc64el.
-
- -- Christian Kastner <ckk@debian.org>  Fri, 18 Oct 2024 20:28:38 +0200
-
-rocr-runtime (6.1.2-1) unstable; urgency=medium
-
-  * Upload to unstable.
-
- -- Christian Kastner <ckk@debian.org>  Thu, 17 Oct 2024 16:40:21 +0200
-
-rocr-runtime (6.1.2-1~exp1) experimental; urgency=medium
-
-  [ Xuanteng Huang ]
-  * New upstream version 6.1.2
-  * Add newly introduced public symbols
+    * Based on LLVM 20
+    * Update Files-Excluded
+  * Replace libamd-comgr2 with libamd-comgr3
+  * Switch to hand-written hipcc man pages
+  * Update d/watch to Version 5
   * Refresh patches
-  * Add myself to Uploaders
+  * Drop d/p/0001-add-wf64-target-constraints-to-kernels-using-w64-ins.patch
+  * Drop patch numbers
+  * Add d/p/upstream-llvm-compatibility.patch to enable compatibility
+    with LLVM 20
+  * Add d/p/cmake-4-compat.patch to enable compatibility with CMake 4.1
+  * hipcc now depends on libamdhip64-dev, rather than merely recommending it.
+    This is a return to the hipcc package behaviour from Trixie.
+  * Add self to uploaders
+
+ -- Cordell Bloor <cgmb@debian.org>  Thu, 14 Aug 2025 22:32:37 -0600
+
+rocm-llvm (6.1.2+dfsg-1~exp2) experimental; urgency=medium
+
+  Team upload.
 
   [ Christian Kastner ]
-  * Add myself to Uploaders
-
- -- Xuanteng Huang <xuanteng.huang@outlook.com>  Mon, 26 Aug 2024 21:29:48 +0800
-
-rocr-runtime (5.7.1-3) unstable; urgency=medium
+  * CI: Drop autopkgtest pinning, deps are in unstable now
 
   [ Cordell Bloor ]
-  * d/control: restrict build to 64-bit architectures
-
-  [ Helmut Grohne ]
-  * Mark all packages Multi-Arch: same (Closes: #1078913)
-
-  [ Étienne Mollier ]
-  * d/control: declare compliance to standards version 4.7.0.
-
- -- Étienne Mollier <emollier@debian.org>  Wed, 21 Aug 2024 13:34:47 +0200
-
-rocr-runtime (5.7.1-2) unstable; urgency=medium
-
-  * Migrate to unstable.
-
- -- Cordell Bloor <cgmb@slerp.xyz>  Mon, 18 Mar 2024 18:46:07 -0600
-
-rocr-runtime (5.7.1-2~exp1) experimental; urgency=medium
-
-  * Add d/p/0003-expand-endian-detection.patch to fix arm64 and ppc64el
-    endianness detection logic.
-  * Add d/p/0006-initialize-chip-revision.patch to fix failing assertions
-    on Rembrandt hardware.
-  * Add d/gbp.conf to ensure use of pristine-tar.
-
- -- Cordell Bloor <cgmb@slerp.xyz>  Sun, 17 Mar 2024 23:51:29 -0600
-
-rocr-runtime (5.7.1-1) unstable; urgency=medium
-
-  * Migrate to unstable.
-  * d/control: update B-D from pkg-config to pkgconf
-  * d/p/0004-extend-isa-compatibility-check.patch: fix IsVersionCompatible
-    results for gfx1012. The gfx1012 ISA is exactly equivalent to gfx1011.
-  * Upstream version 5.7.1 includes hsa_amd_memory_async_copy_on_engine
-    (Closes: #1022871).
-
- -- Cordell Bloor <cgmb@slerp.xyz>  Thu, 22 Feb 2024 21:19:35 -0700
-
-rocr-runtime (5.7.1-1~exp2) experimental; urgency=medium
-
-  * Add patch to link to drm_amdgpu to fix undefined symbols.
-  * Fix missing paths in exported hsa-runtime64 CMake targets.
-  * d/rules: cleanup unnecessary options
-
- -- Cordell Bloor <cgmb@slerp.xyz>  Tue, 09 Jan 2024 02:43:41 -0700
-
-rocr-runtime (5.7.1-1~exp1) experimental; urgency=medium
-
-  [ Cordell Bloor ]
-  * New upstream version 5.7.1.
-  * Update Build-Depends for clang-17.
-  * Update upstream URL.
-
-  [ Mo Zhou ]
-  * Add the missing B-D pkg-config to fix FTBFS.
-  * Upload to experimental.
-
- -- Cordell Bloor <cgmb@slerp.xyz>  Sun, 07 Jan 2024 18:13:42 -0700
-
-rocr-runtime (5.2.3-6) unstable; urgency=medium
-
-  * Add self to uploaders.
-  * Add d/p/0005-disable-xnack-query-print.patch to disable message:
-      KFD does not support xnack mode query.
-      ROCr must assume xnack is disabled.
-    (Closes: #1056170)
-
- -- Cordell Bloor <cgmb@slerp.xyz>  Fri, 24 Nov 2023 14:36:38 -0700
-
-rocr-runtime (5.2.3-5) unstable; urgency=medium
-
-  * Team upload.
-
-  * d/p/0004-extend-isa-compatibility-check.patch: fix assertion when
-    gfx906 falls back to gfx900.
-
- -- Cordell Bloor <cgmb@slerp.xyz>  Sat, 29 Jul 2023 15:41:52 -0600
-
-rocr-runtime (5.2.3-4) unstable; urgency=medium
-
-  [ Cordell Bloor ]
-  * d/p/0004-extend-isa-compatibility-check.patch: cosmetic update.
-    This is a superficial update to the variable naming for clarity. There
-    are no functional changes to the program behaviour.
-
-  [ Étienne Mollier ]
-  * Migrate ISA compatibility improvements to unstable.
-    Thanks to Cordell Bloor
-
- -- Étienne Mollier <emollier@debian.org>  Wed, 05 Jul 2023 20:57:23 +0200
-
-rocr-runtime (5.2.3-4~exp1) experimental; urgency=medium
-
-  * Team upload.
-
-  * Improve ISA compatibility checks to enable loading gfx900, gfx1010 and
-    gfx1030 kernels on other compatible hardware.
-  * d/copyright: correct my email address
-
- -- Cordell Bloor <cgmb@slerp.xyz>  Thu, 25 May 2023 17:08:01 -0600
-
-rocr-runtime (5.2.3-3) unstable; urgency=medium
-
-  * Team upload.
-
-  * add 0003-fix-static-initialization-order.patch
-    to prevent crash in hsa_init (Closes: #1031089)
-  * update d/copyright
-  * d/control: update standards version
-
- -- Cordell Bloor <cgmb@slerp.xyz>  Sun, 19 Feb 2023 03:34:29 -0700
-
-rocr-runtime (5.2.3-2) unstable; urgency=medium
-
-  * 0002-remove-libhsa-amd-aqlprofile64.so-loading.patch: add;
-    cancel noise caused by missing non-free library in build logs.
-    Thanks to Cordell Bloor (Closes: #1024791)
-
- -- Étienne Mollier <emollier@debian.org>  Sat, 14 Jan 2023 11:49:05 +0100
-
-rocr-runtime (5.2.3-1) unstable; urgency=medium
-
-  * Migrate ROCm 5.2.3 to unstable.
-  * d/control: bump build dependency on rocm-device-libs to >=5.2.
-  * d/control: bump build dependencies to llvm 15.
-  * d/control: adjust to new llvm packages layout.
-
- -- Étienne Mollier <emollier@debian.org>  Tue, 18 Oct 2022 19:16:28 +0200
-
-rocr-runtime (5.2.3-1~0exp0) experimental; urgency=medium
-
-  * New upstream version
-  * Standards-Version: 4.6.1 (routine-update)
-  * Reorder sequence of d/control fields by cme (routine-update)
-  * Add salsa-ci file (routine-update)
-  * Rules-Requires-Root: no (routine-update)
-  * Set upstream metadata fields.  (routine-update)
-  * d/control: add myself to uploaders.
-  * d/control: bump versioned build-dependency libhsakmt-dev to 5.2.
-  * d/libhsa-runtime*.install: update installation paths; libraries are now
-    located in a multiarch friendly location.
-  * d/copyright: remove redundant glob pattern.
-
- -- Étienne Mollier <emollier@debian.org>  Tue, 06 Sep 2022 21:58:59 +0200
-
-rocr-runtime (5.1.0-2) unstable; urgency=medium
-
-  * Disable IMAGE_SUPPORT for non-amd64 architectures.
-
- -- Mo Zhou <lumin@debian.org>  Fri, 08 Apr 2022 10:26:29 -0400
-
-rocr-runtime (5.1.0-1) unstable; urgency=medium
-
-  * New upstream version 5.1.0
-  * Bump version requirement of ROCm B-D to (>= 5.1.0~).
-
- -- Mo Zhou <lumin@debian.org>  Thu, 07 Apr 2022 12:42:34 -0400
-
-rocr-runtime (5.0.0-1) unstable; urgency=medium
-
-  [ Maxime Chambonnet ]
-  * New upstream version 5.0.0
-  * patched cmake to find devlibs
-  * Adapted bitcode dir to /usr/lib/triple
-  * Update LLVM B-D to version 14
-  * Fixed typo in d/control
-
-  [ Mo Zhou ]
-  * Add requirement (>= 5.0.0~) for B-D libhsakmt-dev and rocm-device-libs.
-  * Don't install the duplicated license file.
-  * Upload to unstable.
-
- -- Mo Zhou <lumin@debian.org>  Mon, 14 Feb 2022 16:24:34 -0500
-
-rocr-runtime (4.5.2-1) experimental; urgency=medium
-
-  [ Maxime Chambonnet ]
-  * New upstream version 4.5.2
-  * Added "Build-Depends-Package" in debian/*.symbols
-  * Passed the hardening flag in debian/rules
-  * Removed dropped files in debian/copyright
-  * Debian standards 4.4.1 --> 4.6.0
-  * Added myself to uploaders
-  * propagated soname rollback to symbol
-  * Remove uupdate from d/watch
-  * Explicitly remove temporary cmake building directory for object files.
-
-  [ Mo Zhou ]
-  * Add the d/watch file.
-  * Add the missing Clang-13 and LLVM-13 build dependencies.
-  * Add the missing B-D: xxd and rocm-device-libs.
-  * d/rules: [CMake] Specify BITECODE_DIR variable.
-  * Add missing B-D on lld-13.
-  * Update maintainer address to debian-ai@l.d.o
-  * Refresh copyright with cme/manual fix.
-  * Apply wrap-and-sort.
-  * Upload to experimental.
-
- -- Mo Zhou <lumin@debian.org>  Thu, 03 Feb 2022 20:01:52 -0500
-
-rocr-runtime (3.5.0-1~exp1) experimental; urgency=medium
-
-  * Initial release. (Closes: #960981)
-
-  [ Mo Zhou ]
-  * Initial packaging.
-
-  [ Norbert Preining ]
-  * Update to 3.5.0.
-
- -- Norbert Preining <norbert@preining.info>  Wed, 03 Jun 2020 12:49:06 +0900
+  * d/control: remove stray comma in maintainer field to fix
+    the package information listed on tracker.debian.org.
+  * d/control: add perl to hipcc dependencies
+  * d/control: add libamdhip64-dev to hipcc recommended packages
+
+ -- Cordell Bloor <cgmb@slerp.xyz>  Mon, 30 Jun 2025 12:47:43 -0600
+
+rocm-llvm (6.1.2+dfsg-1~exp1) experimental; urgency=medium
+
+  [ Xuanteng Huang ]
+  * New upstream 6.1.2
+    - This replaces all of src:rocm-compilersupport as well as the compiler
+      components of src:rocm-hipamd.
+  * Reorganize code layout, strip LLVM code forked by AMD
+  * Borrow patch from rocm-hipamd to keep the include path order for hipcc
+  * Migrate tests from rocm-hipamd as well to validate HIP code compilation
+  * Enable Salsa CI pipeline
+
+ -- Xuanteng Huang <xuanteng.huang@outlook.com>  Tue, 22 Oct 2024 23:36:16 +0200

@@ -1,9 +1,4 @@
-usr/hsa
-usr/lib/libhsa-runtime64.so
-usr/lib/libhsa-runtime64.so.1
-usr/share/doc/hsa-runtime64/LICENSE.md
-usr/share/doc/hsa-rocr/LICENSE.md
-usr/include/hsakmt
-usr/lib/${DEB_HOST_MULTIARCH}/pkgconfig/*.pc
-usr/lib/*/cmake/hsakmt
-usr/lib/*/libhsakmt.*
+usr/bin/hipvars.pm
+usr/hip/*
+usr/share/doc/*
+

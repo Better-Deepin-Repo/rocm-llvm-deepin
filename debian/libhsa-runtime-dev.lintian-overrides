@@ -1,4 +1,0 @@
-# usr/include/hsa/hsa is a self-recursive symlink (hsa -> .) shipped upstream
-# so consumers can include headers as either <hsa/foo.h> or <foo.h> regardless
-# of whether they use -I/usr/include or -I/usr/include/hsa.
-libhsa-runtime-dev: symlink-is-self-recursive . [usr/include/hsa/hsa]

@@ -1,217 +1,123 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Source: https://github.com/ROCm/ROCR-Runtime
-Files-Excluded: libhsakmt/tests/kfdtest/gtest-1.6.0
- rocrtst/gtest
- rocrtst/thirdparty
-Comment:
- We exclude the vendored copies of GTest and a binary copy of hwloc.
+Upstream-Name: llvm-project
+Source: https://github.com/ROCm/llvm-project
+Files-Excluded: amd/comgr/test/source/legacy
+                amd/comgr/test/source/*.s
+                amd/comgr/test/source/*.b
+                amd/git-hooks
+                amd/README.md
+                amd/utils
+                .azuredevops
+                .ci
+                .clang-format
+                .clang-format-ignore
+                .clang-tidy
+                .git-blame-ignore-revs
+                .gitattributes
+                .github
+                .gitignore
+                .mailmap
+                CODE_OF_CONDUCT.md
+                CONTRIBUTING.md
+                LICENSE.TXT
+                README.md
+                SECURITY.md
+                bolt
+                clang
+                clang-tools-extra
+                cmake
+                compiler-rt
+                cross-project-tests
+                flang
+                flang-rt
+                libc
+                libclc
+                libcxx
+                libcxxabi
+                libunwind
+                lld
+                lldb
+                llvm
+                llvm-libgcc
+                mlir
+                offload
+                openmp
+                polly
+                pstl
+                pyproject.toml
+                revert_patches.txt
+                runtimes
+                third-party
+                utils
+                libsycl
+                orc-rt
+Comment: These files are the LLVM codes from upstream repository.
+ As we are using the LLVM in Debian's official archive, we exclude
+ the LLVM-related codebase from the source package.
+ .
+ Besides, amd/comgr/test/source/legacy/* and *.s binary/assemble files are used to emit
+ LLVM amdgpu v2/v3 code, which violates DFSG, so we exclude them as well.
 
-Files: *
+Files: amd/hipcc/*
+Copyright: 2008-2025, Advanced Micro Devices, Inc.
+License: Expat
+
+Files: amd/comgr/*
 Copyright: 2014-2025, Advanced Micro Devices, Inc.
+License: APACHE-2-LLVM-EXCEPTIONS
+Comment: amd/comgr/LICENSE.txt was relicensed from NCSA to the Apache License
+ v2.0 with LLVM Exceptions, and every source and test file under amd/comgr/
+ now carries an SPDX "Apache-2.0 WITH LLVM-exception" header. A "Legacy Comgr
+ License" section retaining the original NCSA terms is preserved in
+ amd/comgr/LICENSE.txt for historical reference only.
+
+Files: amd/device-libs/*
+Copyright: 2014-2016, Advanced Micro Devices, Inc.
 License: NCSA
+
+Files: amd/device-libs/ocml/src/erfcD.cl
+       amd/device-libs/ocml/src/erfcF.cl
+       amd/device-libs/ocml/src/lgamma_rD.cl
+       amd/device-libs/ocml/src/lgamma_rF.cl
+Copyright: 2014-2016, Advanced Micro Devices, Inc.
+           1993, Sun Microsystems, Inc.
+License: NCSA and SunPro
+Comment: These files began with Sun's netlib erf/lgamma implementations and
+ were extended by AMD. AMD's contributions are distributed under NCSA, while
+ the SunPro permissive notice is retained for the portions derived from Sun's
+ original code, as required by that notice.
 
 Files: debian/*
-Copyright: 2020, Norbert Preining <norbert@preining.info>
-           2019-2023, Mo Zhou <lumin@debian.org>
+Copyright: 2022, Maxime Chambonnet <maxzor@maxzor.eu>
            2022-2023, Étienne Mollier <emollier@debian.org>
-           2023-2026, Cordell Bloor <cgmb@debian.org>
+           2022-2025, Cordell Bloor <cgmb@debian.org>
            2024, Xuanteng Huang <xuanteng.huang@outlook.com>
-           2025-2026, Mario Limonciello <superm1@debian.org>
-           2026, Talha Can Havadar <havadartalha@gmail.com>
+           2024, Christian Kastner <ckk@debian.org>
+           2025, Igor Luppi <igor.luppi@canonical.com>
+           2025-2026, Talha Can Havadar <havadartalha@gmail.com>
 License: Expat
-
-Files: clang-format-diff.py
-Copyright: 2003-2017, University of Illinois at Urbana-Champaign
-License: APACHE-2-LLVM-EXCEPTIONS
-Comment: This file is has been copied from LLVM 13, where it can be
- found as clang/tools/clang-format/clang-format-diff.py
-
-Files: libhsakmt/*
-Copyright: 2012-2024, Advanced Micro Devices, Inc.
-License: Expat
-
-Files: libhsakmt/src/rbtree.c
-       libhsakmt/src/rbtree.h
-Copyright: 2002-2018, Igor Sysoe
-           2011-2018, Nginx, Inc.
-License: BSD-2-clause
-
-Files: samples/common/helper_funcs.cpp
-       samples/common/helper_funcs.hpp
-Copyright: 2013, Advanced Micro Devices, Inc.
-License: BSD-2-clause
-
-Files: libhsakmt/src/topology.c
-Copyright: 2014 Advanced Micro Devices, Inc.
-           2016-2018 Raptor Engineering, LLC.
-License: Expat
-
-Files: libhsakmt/cmake_modules/utils.cmake
-   libhsakmt/tests/kfdtest/src/Assemble.cpp
-   libhsakmt/tests/kfdtest/src/Assemble.hpp
-Copyright: 2014-2017,2022, Advanced Micro Devices, Inc.
-License: NCSA
-
-Files: runtime/cmake_modules/FindLibElf.cmake
-   runtime/hsa-runtime/cmake_modules/FindLibElf.cmake
-Copyright: 2008, Bernhard Walle <bernhard.walle@gmx.de>
-License: BSD-3-clause
-
-Files: runtime/hsa-runtime/image/addrlib/*
-Copyright: 2007-2024, Advanced Micro Devices, Inc.
-License: Expat
-
-Files: libhsakmt/include/hsakmt/linux/udmabuf.h
-Copyright: Linux kernel contributors
-License: GPL-2
-Comment: Copied from Linux kernel source with minor modifications.
- The source file carries SPDX tag "GPL-2.0 WITH Linux-syscall-note".
-
-Files: libhsakmt/src/virtio/include/linux/virtgpu_drm.h
-Copyright: 2013, Red Hat
-License: Expat
-Comment: Copied from the Linux kernel UAPI headers (include/uapi/drm/virtgpu_drm.h).
-
-Files: libhsakmt/LICENSE.md
-Copyright: 2016, Advanced Micro Devices, Inc.
-       2002-2018, Igor Sysoev
-       2011-2018, Nginx, Inc.
-License: BSD-2-clause-or-Expat
-
-Files: rocrtst/common/utils_test/*
-   rocrtst/Kernels/read_kernel.cl
-   rocrtst/Kernels/write_kernel.cl
-   rocrtst/samples/rocm_async/*
-   rocrtst/suites/performance/memory_async_copy_on_engine.cc
-   rocrtst/suites/performance/memory_async_copy_on_engine.h
-   runtime/hsa-runtime/core/runtime/blit_shaders/create_blit_shader_header.py
-   runtime/hsa-runtime/core/runtime/trap_handler/create_trap_handler_header.py
-   runtime/hsa-runtime/core/util/mpsc_queue.hpp
-   runtime/hsa-runtime/image/blit_src/create_hsaco_ascii_file.py
-   runtime/hsa-runtime/inc/hsa_amd_tool.h
-   runtime/hsa-runtime-tools/CMakeLists.txt
-   samples/common/common.cpp
-   samples/common/common.hpp
-   samples/common/common_utility.cpp
-   samples/common/common_utility.h
-   samples/common/hsa_base_util.cpp
-   samples/common/hsa_base_util.h
-   samples/common/hsa_perf_cntrs.cpp
-   samples/common/hsa_perf_cntrs.hpp
-   samples/common/hsa_rsrc_factory.cpp
-   samples/common/hsa_rsrc_factory.hpp
-   samples/common/hsa_test.cpp
-   samples/common/hsa_test.h
-   samples/common/hsatimer.cpp
-   samples/common/hsatimer.h
-   samples/common/os.cpp
-   samples/common/os.h
-   samples/common/utilities.cpp
-   samples/common/utilities.h
-   samples/GetInfo/get_info.cpp
-   samples/GetInfo/get_info.h
-Copyright: Advanced Micro Devices, Inc., or its affiliates.
-License: Expat
-
-License: BSD-2-clause
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions
- are met:
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
- .
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR AND CONTRIBUTORS ``AS IS'' AND
- ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
- IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
- ARE DISCLAIMED.  IN NO EVENT SHALL THE AUTHOR OR CONTRIBUTORS BE LIABLE
- FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
- DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS
- OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
- HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
- LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY
- OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
- SUCH DAMAGE.
-
-License: BSD-3-clause
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions
- are met:
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
- 3. Neither the name of the University nor the names of its contributors
-    may be used to endorse or promote products derived from this software
-    without specific prior written permission.
- .
- THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
- ``AS IS'' AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
- LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
- A PARTICULAR PURPOSE ARE DISCLAIMED.  IN NO EVENT SHALL THE HOLDERS OR
- CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
- EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
- PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
- PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
- LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
- NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
- SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Comment: Some contents in the metafiles are borrowed from the origin rocm-hipamd
+ repository (https://salsa.debian.org/rocm-team/rocm-hipamd) so we inherit the
+ copyrights from there.
 
 License: Expat
- Permission is hereby granted, free of charge, to any person obtaining a
- copy of this software and associated documentation files (the "Software"),
- to deal in the Software without restriction, including without limitation
- the rights to use, copy, modify, merge, publish, distribute, sublicense,
- and/or sell copies of the Software, and to permit persons to whom the
- Software is furnished to do so, subject to the following conditions:
- .
- The above copyright notice and this permission notice shall be included
- in all copies or substantial portions of the Software.
- .
- THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS
- OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
- MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
- IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
- CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
- TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
- SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
-License: BSD-2-clause-or-Expat
- This file contains text under the BSD-2-clause and Expat licenses.
- See the full license texts in the `BSD-2-clause` and `Expat` paragraphs
- above.
-
-License: NCSA
- The University of Illinois/NCSA
- Open Source License (NCSA)
- .
  Permission is hereby granted, free of charge, to any person obtaining a copy
- of this software and associated documentation files (the "Software"), to
- deal with the Software without restriction, including without limitation
- the rights to use, copy, modify, merge, publish, distribute, sublicense,
- and#or sell copies of the Software, and to permit persons to whom the
- Software is furnished to do so, subject to the following conditions:
+ of this software and associated documentation files (the "Software"), to deal
+ in the Software without restriction, including without limitation the rights
+ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ copies of the Software, and to permit persons to whom the Software is
+ furnished to do so, subject to the following conditions:
  .
-  - Redistributions of source code must retain the above copyright notice,
-    this list of conditions and the following disclaimers.
-  - Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimers in
-    the documentation and#or other materials provided with the distribution.
-  - Neither the names of Advanced Micro Devices, Inc,
-    nor the names of its contributors may be used to endorse or promote
-    products derived from this Software without specific prior written
-    permission.
+ The above copyright notice and this permission notice shall be included in
+ all copies or substantial portions of the Software.
  .
  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
- FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
- THE CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR
- OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,
- ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
- DEALINGS WITH THE SOFTWARE.
+ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+ THE SOFTWARE.
 
 License: APACHE-2-LLVM-EXCEPTIONS
  On Debian systems the full text of the Apache Software License 2.0 can be
@@ -233,6 +139,41 @@ License: APACHE-2-LLVM-EXCEPTIONS
  the License, but only in their entirety and only with respect to the Combined
  Software.
 
-License: GPL-2
- On Debian systems the full text of the GNU General Public License version 2
- can be found in the `/usr/share/common-licenses/GPL-2' file.
+License: SunPro
+ Copyright (C) 1993 by Sun Microsystems, Inc. All rights reserved.
+ .
+ Developed at SunPro, a Sun Microsystems, Inc. business.
+ Permission to use, copy, modify, and distribute this
+ software is freely granted, provided that this notice
+ is preserved.
+
+License: NCSA
+ University of Illinois/NCSA
+ Open Source License
+ .
+ All rights reserved.
+ .
+ Permission is hereby granted, free of charge, to any person obtaining a copy of
+ this software and associated documentation files (the "Software"), to deal with
+ the Software without restriction, including without limitation the rights to
+ use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies
+ of the Software, and to permit persons to whom the Software is furnished to do
+ so, subject to the following conditions:
+ .
+ * Redistributions of source code must retain the above copyright notice,
+   this list of conditions and the following disclaimers.
+ * Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimers in the
+   documentation and/or other materials provided with the distribution.
+ * Neither the names of the LLVM Team, University of Illinois at
+   Urbana-Champaign, nor the names of its contributors may be used to
+   endorse or promote products derived from this Software without specific
+   prior written permission.
+ .
+ THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE
+ CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH THE
+ SOFTWARE.

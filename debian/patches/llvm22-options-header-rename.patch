@@ -1,0 +1,51 @@
+From: Talha Can Havadar <havadartalha@gmail.com>
+Date: Wed, 20 May 2026 10:00:00 +0000
+Subject: comgr: adapt to LLVM 22 clang/Options/ split
+
+In LLVM 22 the clang options machinery was lifted out of the Driver
+library into its own clang/Options tree:
+
+  * OPT_* enums moved to namespace clang::options and are declared in
+    clang/Options/Options.h (symbols moved into libclangOptions).
+  * GetResourcesPath was lifted off clang::driver::Driver as a static
+    method and is now a free function in namespace clang, declared in
+    clang/Options/OptionUtils.h.
+
+Upstream ROCm has the same migration on amd-staging.
+
+Forwarded: not-needed
+Last-Update: 2026-05-20
+---
+ amd/comgr/src/comgr-compiler.cpp | 6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
+
+--- a/amd/comgr/src/comgr-compiler.cpp
++++ b/amd/comgr/src/comgr-compiler.cpp
+@@ -27,7 +27,8 @@
+ #include "clang/Driver/DriverDiagnostic.h"
+ #include "clang/Driver/Job.h"
+ #include "clang/Driver/OffloadBundler.h"
+-#include "clang/Driver/Options.h"
++#include "clang/Options/Options.h"
++#include "clang/Options/OptionUtils.h"
+ #include "clang/Driver/Tool.h"
+ #include "clang/Frontend/CompilerInstance.h"
+ #include "clang/Frontend/FrontendDiagnostic.h"
+@@ -79,7 +80,7 @@
+ using namespace llvm::sys;
+ using namespace clang;
+ using namespace clang::driver;
+-using namespace clang::driver::options;
++using namespace clang::options;
+ using namespace COMGR::TimeStatistics;
+ 
+ namespace COMGR {
+@@ -1126,7 +1127,7 @@
+   SmallString<256> ClangBinaryPath(env::getLLVMPath());
+   sys::path::append(ClangBinaryPath, "bin", "clang");
+ 
+-  std::string ClangResourceDir = Driver::GetResourcesPath(ClangBinaryPath);
++  std::string ClangResourceDir = GetResourcesPath(ClangBinaryPath);
+ 
+   SmallString<256> DeviceLibPath(ClangResourceDir);
+   sys::path::append(DeviceLibPath, "lib");

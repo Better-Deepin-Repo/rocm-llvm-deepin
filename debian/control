@@ -1,51 +1,104 @@
-Source: rocr-runtime
+Source: rocm-llvm
+Section: devel
+Priority: optional
 Maintainer: Debian ROCm Team <debian-ai@lists.debian.org>
-Uploaders: Mo Zhou <lumin@debian.org>,
-           Étienne Mollier <emollier@debian.org>,
-           Cordell Bloor <cgmb@debian.org>,
-           Xuanteng Huang <xuanteng.huang@outlook.com>,
+Uploaders: Xuanteng Huang <xuanteng.huang@outlook.com>,
            Christian Kastner <ckk@debian.org>,
-           Mario Limonciello <superm1@gmail.com>,
-           Talha Can Havadar <havadartalha@gmail.com>,
-Section: video
-Build-Depends: architecture-is-64-bit,
-               clang-21,
-               clang-tools-21,
+           Cordell Bloor <cgmb@debian.org>,
+           Talha Can Havadar <havadartalha@gmail.com>
+Standards-Version: 4.7.2
+Homepage: https://github.com/ROCm/llvm-project
+Vcs-Browser: https://salsa.debian.org/rocm-team/rocm-llvm
+Vcs-Git: https://salsa.debian.org/rocm-team/rocm-llvm.git
+Build-Depends: debhelper-compat (= 13),
                cmake,
-               debhelper-compat (= 13),
-               libclang-21-dev,
-               libdrm-dev,
-               libelf-dev,
+               clang-22,
+               clang-tools-22,
+               libclang-22-dev,
+               libclang-rt-22-dev,
+               libhsa-runtime-dev (>= 7.1.0~),
                libnuma-dev,
-               lld-21,
-               llvm-21-dev,
-               pkgconf,
-               xxd
-Standards-Version: 4.7.4
-Vcs-Browser: https://salsa.debian.org/rocm-team/rocr-runtime
-Vcs-Git: https://salsa.debian.org/rocm-team/rocr-runtime.git
-Homepage: https://github.com/ROCm/rocm-systems/
+               lld-22,
+               liblld-22-dev,
+               llvm-22-dev,
+               libzstd-dev,
+               zlib1g-dev,
+               libxml2-dev,
+               chrpath,
+Rules-Requires-Root: no
 
-Package: libhsa-runtime64-1
+Package: hipcc
+Section: devel
 Architecture: amd64 arm64 ppc64el
-Multi-Arch: same
+Depends: ${misc:Depends},
+         ${shlibs:Depends},
+         clang-22,
+         llvm-22,
+         lld-22,
+         clang-tools-22,
+         libclang-rt-22-dev,
+         rocm-device-libs-22 (= ${binary:Version}),
+         rocminfo (>= 7.1.0~),
+         libamdhip64-dev (>= 7.1.0~),
+         libstdc++-16-dev
+Description: C++ Runtime API and Kernel Language for AMD and NVIDIA GPUs
+ HIP (Heterogeneous Interface for Portability) is a C++ Runtime API and Kernel
+ Language that allows developers to create portable applications for AMD and
+ NVIDIA GPUs from single source code.
+ .
+ Key features include:
+ .
+  * HIP is very thin and has little or no performance impact over coding
+    directly in CUDA mode;
+  * HIP allows coding in a single-source C++ programming language including
+    features such as templates, C++11 lambdas, classes, namespaces, and more;
+  * HIP allows developers to use the "best" development environment and tools
+    on each target platform;
+  * the HIPify tools automatically convert source from CUDA to HIP;
+  * developers can specialize for the platform (CUDA or AMD) to tune for
+    performance or handle tricky cases.
+ .
+ New projects can be developed directly in the portable HIP C++ language and
+ can run on either NVIDIA or AMD platforms.  Additionally, HIP provides porting
+ tools which make it easy to port existing CUDA codes to the HIP layer, with no
+ loss of performance as compared to the original CUDA application.  HIP is not
+ intended to be a drop-in replacement for CUDA, and developers should expect to
+ do some manual coding and performance tuning work to complete the port.
+ .
+ This package provides the compiler to compile the HIP source programs.
+
+Package: rocm-device-libs-22
+Architecture: amd64 arm64 ppc64el
+Section: libs
+Depends: ${shlibs:Depends},
+         ${misc:Depends},
+Description: AMD specific device-side language runtime libraries
+ Set of AMD specific device-side language runtime libraries, specifically: the
+ Open Compute library controls, the Open Compute Math library, the Open Compute
+ Kernel library, the OpenCL built-in library, the HIP built-in library, and the
+ Heterogeneous Compute built-in library.
+
+Package: libamd-comgr3
+Architecture: amd64 arm64 ppc64el
 Section: libs
 Depends: ${misc:Depends},
-         ${shlibs:Depends}
-Breaks: libamdhip64-5 (<< 6~), rocm-opencl-icd (<< 6.4)
-Description: HSA Runtime API and runtime for ROCm
- This library provides user-mode API interfaces necessary for host applications
- to launch compute kernels to available HSA ROCm kernel agents.
-
-Package: libhsa-runtime-dev
-Architecture: amd64 arm64 ppc64el
+         ${shlibs:Depends},
+         libclang-common-22-dev
 Multi-Arch: same
+Description: ROCm code object manager
+ The Code Object Manager is a shared library which provides operations for
+ creating and inspecting LLVM code objects. See the documentation in the
+ header file /usr/include/amd_comgr/amd_comgr.h .
+
+Package: libamd-comgr-dev
+Architecture: amd64 arm64 ppc64el
 Section: libdevel
-Depends: libhsa-runtime64-1 (= ${binary:Version}),
+Depends: libamd-comgr3 (= ${binary:Version}),
          ${misc:Depends},
          ${shlibs:Depends}
-Description: HSA Runtime API and runtime for ROCm - development files
- This library provides user-mode API interfaces necessary for host applications
- to launch compute kernels to available HSA ROCm kernel agents.
+Description: ROCm code object manager - development package
+ The Code Object Manager is a shared library which provides operations for
+ creating and inspecting LLVM code objects. See the documentation in the
+ header file /usr/include/amd_comgr/amd_comgr.h .
  .
- This package contains the development headers.
+ This package contains the development files.

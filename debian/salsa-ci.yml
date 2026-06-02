@@ -2,7 +2,7 @@ include:
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/recipes/debian.yml
 variables:
   RELEASE: "experimental"
-  SALSA_CI_PIUPARTS_PRE_INSTALL_SCRIPT: "debian/ci/piuparts.sh"
+  SALSA_CI_PIUPARTS_PRE_INSTALL_SCRIPT: "debian/ci-piuparts.sh"
   # hipcc is for 64-bit architectures
   SALSA_CI_DISABLE_BUILD_PACKAGE_I386: 1
   # Use the _SOURCES (deb822) variant rather than the inline SALSA_CI_EXTRA_REPOSITORY
@@ -19,10 +19,4 @@ variables:
   # autopkgtest's testbed has experimental in its sources (via SALSA_CI_EXTRA_REPOSITORY),
   # but apt won't auto-install from experimental due to its default pin priority.
   # Drop a high-priority pin file before deps are resolved.
-  SALSA_CI_AUTOPKGTEST_ARGS: "--setup-commands=${CI_PROJECT_DIR}/debian/ci/autopkgtest.sh"
-# Bootstrap sid instead; the experimental overlay is still applied via
-# SALSA_CI_EXTRA_REPOSITORY_SOURCES + the priority-900 pin from debian/ci/piuparts.sh,
-# which mirrors how experimental works on real Debian systems.
-piuparts:
-  variables:
-    RELEASE: sid
+  SALSA_CI_AUTOPKGTEST_ARGS: "--setup-commands=${CI_PROJECT_DIR}/debian/ci/pin-experimental.sh"
