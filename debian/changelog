@@ -2,7 +2,6 @@ rocm-llvm (7.1.1+dfsg-0ubuntu1) resolute; urgency=medium
 
   * New upstream version 7.1.1 (no changes stack rebuild)
     (LP: #2148304)
-  * Force a stage-1 bootstrap build that only produces rocm-device-libs-21.
 
  -- Igor Luppi <igor.luppi@canonical.com>  Tue, 14 Apr 2026 08:24:33 -0300
 
