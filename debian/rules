@@ -27,7 +27,8 @@ override_dh_dwz:
 	:
 
 override_dh_auto_install:
-	dh_auto_install -O--buildsystem=cmake -O--builddirectory=$(CURDIR)/build.device-libs
+	dh_auto_install -O--buildsystem=cmake -O--builddirectory=$(CURDIR)/build.device-libs \
+		--destdir=$(CURDIR)/debian/tmp
 
 override_dh_install:
 	dh_install
