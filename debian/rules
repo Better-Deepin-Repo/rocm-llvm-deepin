@@ -4,7 +4,6 @@ include /usr/share/dpkg/pkg-info.mk
 export DH_VERBOSE = 1
 export DEB_BUILD_MAINT_OPTIONS = hardening=+all optimize=-lto
 export DEB_CXXFLAGS_MAINT_PREPEND = -gz
-export DPKG_GENSYMBOLS_CHECK_LEVEL = 4
 
 CFLAGS := $(subst -fno-cf-protection,,$(CXXFLAGS))
 CXXFLAGS := $(subst -fno-cf-protection,,$(CXXFLAGS))
@@ -12,11 +11,6 @@ CXXFLAGS := $(subst -fno-cf-protection,,$(CXXFLAGS))
 ifneq ($(filter $(DEB_HOST_ARCH),armel mipsel powerpc),)
 DEVICE_LIBS_CONFIG_FLAGS += -DCMAKE_CXX_STANDARD_LIBRARIES=-latomic
 endif
-
-# Upstream LLVM 22 enforces parse-time subtarget-feature checks for several
-# AMDGPU builtins that ROCm device-libs use unconditionally without -mcpu=.
-# Force-enable the needed features so the generic bitcode compiles.
-DEVICE_LIBS_CONFIG_FLAGS += '-DCLANG_OPTIONS_APPEND=-Xclang;-target-feature;-Xclang;+lerp-inst;-Xclang;-target-feature;-Xclang;+cube-insts;-Xclang;-target-feature;-Xclang;+qsad-insts;-Xclang;-target-feature;-Xclang;+sad-insts'
 
 %:
 	dh $@
@@ -28,7 +22,7 @@ override_dh_auto_configure:
 	dh_auto_build --builddir=build.device-libs
 
 	dh_auto_configure --buildsystem=cmake --sourcedir=amd/comgr --builddir=build.comgr \
-				-- -DCMAKE_PREFIX_PATH="/usr/lib/llvm-22" \
+				-- -DCMAKE_PREFIX_PATH="/usr/lib/llvm-21" \
 				-DAMDDeviceLibs_DIR="$(CURDIR)/build.device-libs/lib/$(DEB_HOST_MULTIARCH)/cmake/AMDDeviceLibs" \
 				-DBUILD_TESTING=OFF -DCOMGR_BUILD_SHARED_LIBS=ON \
 				-DBUILD_FILE_REORG_BACKWARD_COMPATIBILITY=OFF

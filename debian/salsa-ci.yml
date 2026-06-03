@@ -1,22 +1,9 @@
+---
 include:
   - https://salsa.debian.org/salsa-ci-team/pipeline/raw/master/recipes/debian.yml
+
 variables:
   RELEASE: "experimental"
   SALSA_CI_PIUPARTS_PRE_INSTALL_SCRIPT: "debian/ci-piuparts.sh"
   # hipcc is for 64-bit architectures
   SALSA_CI_DISABLE_BUILD_PACKAGE_I386: 1
-  # Use the _SOURCES (deb822) variant rather than the inline SALSA_CI_EXTRA_REPOSITORY
-  # string: the build path (sbuild) and the autopkgtest/piuparts/reprotest path
-  # interpret SALSA_CI_EXTRA_REPOSITORY differently (sbuild takes an inline `deb` line,
-  # add_extra_repository.sh treats it as a file path and silently fails on an inline
-  # value). A checked-in deb822 file pointed to by _SOURCES works for every job.
-  SALSA_CI_EXTRA_REPOSITORY_SOURCES: "debian/ci/experimental.sources"
-  # Override the default aspcud resolver: aspcud's experimental-minimizing criteria
-  # rejects as UNSAT. aptitude resolves cross-suite deps without that bias.
-  # This should only be done for experimental pipeline as we may have dependencies
-  # coming through there
-  SALSA_CI_SBUILD_ARGS: "--build-dep-resolver=aptitude"
-  # autopkgtest's testbed has experimental in its sources (via SALSA_CI_EXTRA_REPOSITORY),
-  # but apt won't auto-install from experimental due to its default pin priority.
-  # Drop a high-priority pin file before deps are resolved.
-  SALSA_CI_AUTOPKGTEST_ARGS: "--setup-commands=${CI_PROJECT_DIR}/debian/ci/pin-experimental.sh"

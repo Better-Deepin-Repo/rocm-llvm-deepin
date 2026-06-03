@@ -1,3 +1,0 @@
-usr/amdgcn                                        usr/lib/llvm-22/lib/clang/22
-usr/lib/${DEB_HOST_MULTIARCH}/cmake/AMDDeviceLibs usr/lib/llvm-22/lib/cmake
-

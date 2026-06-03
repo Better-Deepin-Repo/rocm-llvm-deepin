@@ -1,4 +1,4 @@
-Comgr v4.0 (In Progress) Release Notes
+Comgr v4.0 Release Notes
 ========================
 
 This document contains the release notes for the Code Object Manager (Comgr),
@@ -47,9 +47,6 @@ Deprecated APIs
 
 Removed APIs
 ------------
-- The following Comgr metadata API has removed support for V2/V3 Code Objects:
-  - amd\_comgr\_lookup\_code\_object()
-  This API still supports Code Objects V4 and later.
 
 New Comgr Actions and Data Types
 --------------------------------
@@ -59,18 +56,9 @@ Deprecated Comgr Actions and Data Types
 
 Removed Comgr Actions and Data Types
 ------------------------------------
-- AMD\_COMGR\_ACTION\_DISASSEMBLE\_RELOCATABLE\_TO\_SOURCE
-- AMD\_COMGR\_ACTION\_DISASSEMBLE\_EXECUTABLE\_TO\_SOURCE
-- AMD\_COMGR\_ACTION\_DISASSEMBLE\_BYTES\_TO\_SOURCE
 
 Comgr Testing, Debugging, and Logging Updates
 ---------------------------------------------
-- Removed HIP\_PATH and ROCM\_PATH environment variables. These were used for
-now-removed Comgr actions, such as \*COMPILE\_SOURCE\_TO\_FATBIN.
-- Added a new Comgr LIT testing infrastructure, which can be found in
-amd/comgr/test-lit. This will allow us to write more in-depth and targeted
-tests.
-- Added support for source-based code coverage. See README.md for more details.
 
 New Targets
 -----------

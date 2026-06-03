@@ -1,11 +1,3 @@
-//===- file_map.c ---------------------------------------------------------===//
-//
-// Part of Comgr, under the Apache License v2.0 with LLVM Exceptions. See
-// amd/comgr/LICENSE.TXT in this repository for license information.
-// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-//
-//===----------------------------------------------------------------------===//
-
 #include "amd_comgr.h"
 #include "common.h"
 
@@ -29,9 +21,9 @@ int main(int argc, char *argv[]) {
 
   const char *Buffer = "abcdefghi";
   size_t Length = strlen(Buffer);
-  size_t Bytes = WriteFileCustom(FD, Buffer, Length);
+  size_t Bytes = WriteFile(FD, Buffer, Length);
   if (Bytes != Length) {
-    fail("Write failed with ret %zu", Bytes);
+    fail("Write failed with ret %d", Bytes);
   }
 
   amd_comgr_data_t DataObject;

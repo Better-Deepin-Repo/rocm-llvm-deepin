@@ -1,18 +1,3 @@
-//===- comgr-clang-command.cpp - ClangCommand implementation --------------===//
-//
-// Part of Comgr, under the Apache License v2.0 with LLVM Exceptions. See
-// amd/comgr/LICENSE.TXT in this repository for license information.
-// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-//
-//===----------------------------------------------------------------------===//
-///
-/// \file
-/// This file implements the CacheCommandAdaptor interface for
-/// clang::driver::Commands that are stored in the cache. These correspond to
-/// "clang -cc1" and "lld" invocations.
-///
-//===----------------------------------------------------------------------===//
-
 #include "comgr-clang-command.h"
 
 #include <clang/Driver/Job.h>
@@ -54,11 +39,9 @@ bool skipProblematicFlag(IteratorTy &It, const IteratorTy &End) {
   // Skip include paths, these should have been handled by preprocessing the
   // source first. Sadly, these are passed also to the middle-end commands. Skip
   // debug related flags (they should be ignored) like -dumpdir (used for
-  // profiling/coverage/split-dwarf).
-  // Skip flags related to opencl-c headers or device-libs builtins.
+  // profiling/coverage/split-dwarf)
   StringRef Arg = *It;
-  static const StringSet<> FlagsWithPathArg = {"-I", "-dumpdir", "-include",
-                                               "-mlink-builtin-bitcode"};
+  static const StringSet<> FlagsWithPathArg = {"-I", "-dumpdir"};
   bool IsFlagWithPathArg = It + 1 != End && FlagsWithPathArg.contains(Arg);
   if (IsFlagWithPathArg) {
     ++It;
@@ -68,10 +51,7 @@ bool skipProblematicFlag(IteratorTy &It, const IteratorTy &End) {
   // Clang always appends the debug compilation dir,
   // even without debug info (in comgr it matches the current directory). We
   // only consider it if the user specified debug information
-  const char *FlagsWithEqArg[] = {"-fcoverage-compilation-dir=",
-                                  "-fdebug-compilation-dir="};
-  bool IsFlagWithSingleArg = any_of(
-      FlagsWithEqArg, [&](const char *Flag) { return Arg.starts_with(Flag); });
+  bool IsFlagWithSingleArg = Arg.starts_with("-fdebug-compilation-dir=");
   if (IsFlagWithSingleArg) {
     return true;
   }
@@ -94,6 +74,9 @@ SmallVector<StringRef, 1> getInputFiles(driver::Command &Command) {
   return Paths;
 }
 
+bool isSourceCodeInput(const driver::InputInfo &II) {
+  return driver::types::isSrcFile(II.getType());
+}
 } // namespace
 ClangCommand::ClangCommand(driver::Command &Command,
                            DiagnosticOptions &DiagOpts, vfs::FileSystem &VFS,
@@ -121,6 +104,19 @@ void ClangCommand::addOptionsIdentifier(HashAlgorithm &H) const {
       continue;
 
     StringRef Arg = *It;
+    static const StringSet<> FlagsWithFileArgEmbededInComgr = {
+        "-include-pch", "-mlink-builtin-bitcode"};
+    if (FlagsWithFileArgEmbededInComgr.contains(Arg)) {
+      // The next argument is a path to a "secondary" input-file (pre-compiled
+      // header or device-libs builtin)
+      // These two files kinds of files are embedded in comgr at compile time,
+      // and in normally their remain constant with comgr's build. The user is
+      // not able to change them.
+      ++It;
+      if (It == End)
+        break;
+      continue;
+    }
 
     // input files are considered by their content
     // output files should not be considered at all
@@ -150,18 +146,24 @@ bool ClangCommand::canCache() const {
   bool HasOneOutput = Command.getOutputFilenames().size() == 1;
   bool IsPreprocessorCommand = getClass() == driver::Action::PreprocessJobClass;
 
-  return HasOneOutput && !IsPreprocessorCommand &&
+  // This reduces the applicability of the cache, but it helps us deliver
+  // something now and deal with the PCH issues later. The cache would still
+  // help for spirv compilation (e.g. bitcode->asm) and for intermediate
+  // compilation steps
+  bool HasSourceCodeInput = any_of(Command.getInputInfos(), isSourceCodeInput);
+
+  return HasOneOutput && !IsPreprocessorCommand && !HasSourceCodeInput &&
          !hasDebugOrProfileInfo(Command.getArguments());
 }
 
 Error ClangCommand::writeExecuteOutput(StringRef CachedBuffer) {
   StringRef OutputFilename = Command.getOutputFilenames().front();
-  return CachedCommandAdaptor::writeSingleOutputFile(OutputFilename,
-                                                     CachedBuffer);
+  return CachedCommandAdaptor::writeUniqueExecuteOutput(OutputFilename,
+                                                        CachedBuffer);
 }
 
 Expected<StringRef> ClangCommand::readExecuteOutput() {
-  auto MaybeBuffer = CachedCommandAdaptor::readSingleOutputFile(
+  auto MaybeBuffer = CachedCommandAdaptor::readUniqueExecuteOutput(
       Command.getOutputFilenames().front());
   if (!MaybeBuffer)
     return MaybeBuffer.takeError();

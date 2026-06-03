@@ -6,9 +6,11 @@ Subject: use signed-char in comgr build
  amd/comgr/CMakeLists.txt | 5 +++++
  1 file changed, 5 insertions(+)
 
+diff --git a/amd/comgr/CMakeLists.txt b/amd/comgr/CMakeLists.txt
+index cfa170f..237b6de 100644
 --- a/amd/comgr/CMakeLists.txt
 +++ b/amd/comgr/CMakeLists.txt
-@@ -168,6 +168,11 @@
+@@ -169,6 +169,11 @@ if (ADDRESS_SANITIZER)
      "${CMAKE_SHARED_LINKER_FLAGS} ${ASAN_LINKER_FLAGS}")
  endif()
  

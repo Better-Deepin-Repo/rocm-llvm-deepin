@@ -1,16 +1,37 @@
-//===- comgr.cpp - User-facing APIs ---------------------------------------===//
-//
-// Part of Comgr, under the Apache License v2.0 with LLVM Exceptions. See
-// amd/comgr/LICENSE.TXT in this repository for license information.
-// SPDX-License-Identifier: Apache-2.0 WITH LLVM-exception
-//
-//===----------------------------------------------------------------------===//
-///
-/// \file
-/// This file implements the core user-facing Comgr APIs, including compilation,
-/// metadata, and disassembly, symbol lookup, and symbolization APIs.
-///
-//===----------------------------------------------------------------------===//
+/*******************************************************************************
+ *
+ * University of Illinois/NCSA
+ * Open Source License
+ *
+ * Copyright (c) 2018 Advanced Micro Devices, Inc. All Rights Reserved.
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * with the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ *     * Redistributions of source code must retain the above copyright notice,
+ *       this list of conditions and the following disclaimers.
+ *
+ *     * Redistributions in binary form must reproduce the above copyright
+ *       notice, this list of conditions and the following disclaimers in the
+ *       documentation and/or other materials provided with the distribution.
+ *
+ *     * Neither the names of Advanced Micro Devices, Inc. nor the names of its
+ *       contributors may be used to endorse or promote products derived from
+ *       this Software without specific prior written permission.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * CONTRIBUTORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS WITH
+ * THE SOFTWARE.
+ *
+ ******************************************************************************/
 
 #include "comgr.h"
 #include "comgr-compiler.h"
@@ -18,6 +39,7 @@
 #include "comgr-disassembly.h"
 #include "comgr-env.h"
 #include "comgr-metadata.h"
+#include "comgr-objdump.h"
 #include "comgr-signal.h"
 #include "comgr-symbol.h"
 #include "comgr-symbolizer.h"
@@ -67,6 +89,73 @@ bool isSymbolInfoValid(amd_comgr_symbol_info_t SymbolInfo) {
          SymbolInfo <= AMD_COMGR_SYMBOL_INFO_LAST;
 }
 
+amd_comgr_status_t dispatchDisassembleAction(amd_comgr_action_kind_t ActionKind,
+                                             DataAction *ActionInfo,
+                                             DataSet *InputSet,
+                                             DataSet *ResultSet,
+                                             raw_ostream &LogS) {
+  amd_comgr_data_set_t ResultSetT = DataSet::convert(ResultSet);
+
+  std::string Out;
+  raw_string_ostream OutS(Out);
+  DisassemHelper Helper(OutS, LogS);
+
+  TargetIdentifier Ident;
+  if (auto Status = parseTargetIdentifier(ActionInfo->IsaName, Ident)) {
+    return Status;
+  }
+
+  // Handle the data object in set relevant to the action only
+  auto Objects =
+      make_filter_range(InputSet->DataObjects, [&](const DataObject *DO) {
+        if (ActionKind == AMD_COMGR_ACTION_DISASSEMBLE_RELOCATABLE_TO_SOURCE &&
+            DO->DataKind == AMD_COMGR_DATA_KIND_RELOCATABLE) {
+          return true;
+        }
+        if (ActionKind == AMD_COMGR_ACTION_DISASSEMBLE_EXECUTABLE_TO_SOURCE &&
+            DO->DataKind == AMD_COMGR_DATA_KIND_EXECUTABLE) {
+          return true;
+        }
+        if (ActionKind == AMD_COMGR_ACTION_DISASSEMBLE_BYTES_TO_SOURCE &&
+            DO->DataKind == AMD_COMGR_DATA_KIND_BYTES) {
+          return true;
+        }
+        return false;
+      });
+  std::vector<std::string> Options;
+  Options.emplace_back("-disassemble");
+  Options.push_back((Twine("-mcpu=") + Ident.Processor).str());
+  auto ActionOptions = ActionInfo->getOptions();
+  Options.insert(Options.end(), ActionOptions.begin(), ActionOptions.end());
+  // Loop through the input data set, perform actions and add result
+  // to output data set.
+  for (auto *Input : Objects) {
+    if (auto Status = Helper.disassembleAction(
+            StringRef(Input->Data, Input->Size), Options)) {
+      return Status;
+    }
+
+    amd_comgr_data_t ResultT;
+    if (auto Status =
+            amd_comgr_create_data(AMD_COMGR_DATA_KIND_SOURCE, &ResultT)) {
+      return Status;
+    }
+    ScopedDataObjectReleaser ResultSDOR(ResultT);
+    DataObject *Result = DataObject::convert(ResultT);
+    if (auto Status = Result->setName(std::string(Input->Name) + ".s")) {
+      return Status;
+    }
+    if (auto Status = Result->setData(OutS.str())) {
+      return Status;
+    }
+    Out.clear();
+    if (auto Status = amd_comgr_data_set_add(ResultSetT, ResultT)) {
+      return Status;
+    }
+  }
+
+  return AMD_COMGR_STATUS_SUCCESS;
+}
 
 amd_comgr_status_t dispatchCompilerAction(amd_comgr_action_kind_t ActionKind,
                                           DataAction *ActionInfo,
@@ -103,6 +192,21 @@ amd_comgr_status_t dispatchCompilerAction(amd_comgr_action_kind_t ActionKind,
   case AMD_COMGR_ACTION_TRANSLATE_SPIRV_TO_BC:
     return Compiler.translateSpirvToBitcode();
 
+  default:
+    return AMD_COMGR_STATUS_ERROR_INVALID_ARGUMENT;
+  }
+}
+
+amd_comgr_status_t dispatchAddAction(amd_comgr_action_kind_t ActionKind,
+                                     DataAction *ActionInfo, DataSet *InputSet,
+                                     DataSet *ResultSet) {
+  for (DataObject *Data : InputSet->DataObjects) {
+    Data->RefCount++;
+    ResultSet->DataObjects.insert(Data);
+  }
+  switch (ActionKind) {
+  case AMD_COMGR_ACTION_ADD_PRECOMPILED_HEADERS:
+    return addPrecompiledHeaders(ActionInfo, ResultSet);
   default:
     return AMD_COMGR_STATUS_ERROR_INVALID_ARGUMENT;
   }
@@ -175,14 +279,14 @@ StringRef getActionKindName(amd_comgr_action_kind_t ActionKind) {
     return "AMD_COMGR_ACTION_LINK_RELOCATABLE_TO_EXECUTABLE";
   case AMD_COMGR_ACTION_ASSEMBLE_SOURCE_TO_RELOCATABLE:
     return "AMD_COMGR_ACTION_ASSEMBLE_SOURCE_TO_RELOCATABLE";
-  case AMD_COMGR_ACTION_COMPILE_SOURCE_TO_RELOCATABLE:
-    return "AMD_COMGR_ACTION_COMPILE_SOURCE_TO_RELOCATABLE";
   case AMD_COMGR_ACTION_DISASSEMBLE_RELOCATABLE_TO_SOURCE:
     return "AMD_COMGR_ACTION_DISASSEMBLE_RELOCATABLE_TO_SOURCE";
   case AMD_COMGR_ACTION_DISASSEMBLE_EXECUTABLE_TO_SOURCE:
     return "AMD_COMGR_ACTION_DISASSEMBLE_EXECUTABLE_TO_SOURCE";
   case AMD_COMGR_ACTION_DISASSEMBLE_BYTES_TO_SOURCE:
     return "AMD_COMGR_ACTION_DISASSEMBLE_BYTES_TO_SOURCE";
+  case AMD_COMGR_ACTION_COMPILE_SOURCE_TO_RELOCATABLE:
+    return "AMD_COMGR_ACTION_COMPILE_SOURCE_TO_RELOCATABLE";
   case AMD_COMGR_ACTION_COMPILE_SOURCE_WITH_DEVICE_LIBS_TO_BC:
     return "AMD_COMGR_ACTION_COMPILE_SOURCE_WITH_DEVICE_LIBS_TO_BC";
   case AMD_COMGR_ACTION_COMPILE_SOURCE_TO_EXECUTABLE:
@@ -240,17 +344,8 @@ amd_comgr_status_t COMGR::parseTargetIdentifier(StringRef IdentStr,
   Ident.Processor = Ident.Features[0];
   Ident.Features.erase(Ident.Features.begin());
 
-
-  // TODO: Add a LIT test for this
-  if (IdentStr == "spirv64-amd-amdhsa--amdgcnspirv" ||
-      IdentStr == "spirv64-amd-amdhsa-unknown-amdgcnspirv") {
-    // Features not supported for SPIR-V
-    if (!Ident.Features.empty())
-      return AMD_COMGR_STATUS_ERROR_INVALID_ARGUMENT;
-    return AMD_COMGR_STATUS_SUCCESS;
-  }
-
   size_t IsaIndex;
+
   amd_comgr_status_t Status = metadata::getIsaIndex(IdentStr, IsaIndex);
   if (Status != AMD_COMGR_STATUS_SUCCESS) {
     return Status;
@@ -922,11 +1017,6 @@ amd_comgr_status_t AMD_COMGR_API
     return AMD_COMGR_STATUS_SUCCESS;
   }
 
-  if (StringRef(IsaName) == "spir64-amd-amdhsa--amdgcnspirv" ||
-      StringRef(IsaName )== "spir64-amd-amdhsa-unknown-amdgcnspirv") {
-    return ActionP->setIsaName(IsaName);
-  }
-
   if (!metadata::isValidIsaName(IsaName)) {
     return AMD_COMGR_STATUS_ERROR_INVALID_ARGUMENT;
   }
@@ -1288,6 +1378,12 @@ amd_comgr_status_t AMD_COMGR_API
 
     ProfilePoint ProfileAction(getActionKindName(ActionKind));
     switch (ActionKind) {
+    case AMD_COMGR_ACTION_DISASSEMBLE_RELOCATABLE_TO_SOURCE:
+    case AMD_COMGR_ACTION_DISASSEMBLE_EXECUTABLE_TO_SOURCE:
+    case AMD_COMGR_ACTION_DISASSEMBLE_BYTES_TO_SOURCE:
+      ActionStatus = dispatchDisassembleAction(ActionKind, ActionInfoP,
+                                               InputSetP, ResultSetP, *LogP);
+      break;
     case AMD_COMGR_ACTION_SOURCE_TO_PREPROCESSOR:
     case AMD_COMGR_ACTION_COMPILE_SOURCE_TO_BC:
     case AMD_COMGR_ACTION_UNBUNDLE:
@@ -1306,13 +1402,8 @@ amd_comgr_status_t AMD_COMGR_API
                                             ResultSetP, *LogP);
       break;
     case AMD_COMGR_ACTION_ADD_PRECOMPILED_HEADERS:
-      // Redirect the input to the output.
-      // Deprecate and remove this action.
-      for (DataObject *Data : InputSetP->DataObjects) {
-        Data->RefCount++;
-        ResultSetP->DataObjects.insert(Data);
-      }
-      ActionStatus = AMD_COMGR_STATUS_SUCCESS;
+      ActionStatus =
+          dispatchAddAction(ActionKind, ActionInfoP, InputSetP, ResultSetP);
       break;
     default:
       ActionStatus = AMD_COMGR_STATUS_ERROR_INVALID_ARGUMENT;
@@ -2038,8 +2129,6 @@ amd_comgr_populate_name_expression_map(amd_comgr_data_t Data, size_t *Count) {
     if (!RelaRangeOrError) {
       llvm::logAllUnhandledErrors(RelaRangeOrError.takeError(), llvm::errs(),
                                   "RelaRange creation error: ");
-      for (auto *Ptr : NameExpDataVec)
-        delete Ptr;
       return AMD_COMGR_STATUS_ERROR;
     }
     auto RelaRange = std::move(RelaRangeOrError.get());
@@ -2060,8 +2149,6 @@ amd_comgr_populate_name_expression_map(amd_comgr_data_t Data, size_t *Count) {
     if (!RodataOrError) {
       llvm::logAllUnhandledErrors(RodataOrError.takeError(), llvm::errs(),
                                   "Rodata creation error: ");
-      for (auto *Ptr : NameExpDataVec)
-        delete Ptr;
       return AMD_COMGR_STATUS_ERROR;
     }
     auto Rodata = std::move(RodataOrError.get());
@@ -2092,8 +2179,6 @@ amd_comgr_populate_name_expression_map(amd_comgr_data_t Data, size_t *Count) {
       }
     }
 
-    for (auto *Ptr : NameExpDataVec)
-      delete Ptr;
   } // end AMD_COMGR_DATA_KIND_EXECUTABLE conditional
 
   *Count = DataP->NameExpressionMap.size();
@@ -2104,8 +2189,7 @@ amd_comgr_populate_name_expression_map(amd_comgr_data_t Data, size_t *Count) {
 amd_comgr_status_t AMD_COMGR_API
 // NOLINTNEXTLINE(readability-identifier-naming)
 amd_comgr_map_name_expression_to_symbol_name(amd_comgr_data_t Data,
-                                             size_t *Size,
-                                             const char *NameExpression,
+                                             size_t *Size, char *NameExpression,
                                              char *SymbolName) {
   DataObject *DataP = DataObject::convert(Data);
   if (!DataP || !DataP->Data ||

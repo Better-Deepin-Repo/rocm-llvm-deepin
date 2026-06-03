@@ -14,7 +14,7 @@ Forwarded: not-needed
        compilerPath = getRoccmPath();
        hipClangPath = compilerPath;
 -      hipClangPath /= "lib/llvm/bin";
-+      hipClangPath /= "lib/llvm-22/bin";
++      hipClangPath /= "lib/llvm-21/bin";
      }
  
      compilerPath = hipClangPath.string();

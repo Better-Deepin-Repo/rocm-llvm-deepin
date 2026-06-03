@@ -6,9 +6,11 @@ Subject: fix devicelibs path
  amd/hipcc/src/hipBin_amd.h | 8 +-------
  1 file changed, 1 insertion(+), 7 deletions(-)
 
+diff --git a/amd/hipcc/src/hipBin_amd.h b/amd/hipcc/src/hipBin_amd.h
+index b89b83a..58f180a 100644
 --- a/amd/hipcc/src/hipBin_amd.h
 +++ b/amd/hipcc/src/hipBin_amd.h
-@@ -323,12 +323,6 @@
+@@ -323,12 +323,6 @@ string HipBinAmd::getDeviceLibPath() const {
      amdgcnBitcode /= "amdgcn/bitcode";
      if (fs::exists(amdgcnBitcode)) {
        deviceLibPath = amdgcnBitcode.string();
@@ -21,3 +23,12 @@ Subject: fix devicelibs path
      }
    }
    return deviceLibPath;
+@@ -865,7 +859,7 @@ void HipBinAmd::executeHipCCCmd(vector<string> argv) {
+   if (hasHIP) {
+     fs::path bitcodeFs = roccmPath;
+     bitcodeFs /= "amdgcn/bitcode";
+-    if (deviceLibPath != bitcodeFs.string()) {
++    if (!deviceLibPath.empty() && deviceLibPath != bitcodeFs.string() && fs::exists(deviceLibPath)) {
+       string hip_device_lib_str = " --hip-device-lib-path=\""
+                                   + deviceLibPath + "\"";
+       HIPCXXFLAGS += hip_device_lib_str;

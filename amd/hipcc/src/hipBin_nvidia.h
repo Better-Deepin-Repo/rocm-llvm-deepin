@@ -202,11 +202,6 @@ const string& HipBinNvidia::getHipLdFlags() const {
 
 // initialize Hipc flags
 void HipBinNvidia::initializeHipCFlags() {
-  string hipCFlags;
-  string hipIncludePath;
-  hipIncludePath = getHipInclude();
-  hipCFlags += " -isystem \"" + hipIncludePath + "\"";
-  hipCFlags_ = hipCFlags;
 }
 
 // returns Hipccx flags
@@ -217,9 +212,6 @@ const string& HipBinNvidia::getHipCXXFlags() const {
 // initializes the HIPCCX flags
 void HipBinNvidia::initializeHipCXXFlags() {
   string hipCXXFlags = " -Wno-deprecated-gpu-targets ";
-  string hipIncludePath;
-  hipIncludePath = getHipInclude();
-  hipCXXFlags += " -isystem \"" + hipIncludePath + "\"";
   hipCXXFlags_ = hipCXXFlags;
 }
 

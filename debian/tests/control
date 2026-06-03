@@ -6,6 +6,3 @@ Tests: hipcc.sh,
 Depends: hipcc (>= 6.1.2~), cmake, make, gcc, g++, rocminfo (>= 6.1.2~), libamdhip64-dev (>= 5.7.1)
 Restrictions: superficial, skippable
 
-Tests: amd-comgr-cmake.sh
-Depends: libamd-comgr-dev, cmake, make, gcc, libc6-dev
-
