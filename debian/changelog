@@ -2,6 +2,7 @@ rocm-llvm (7.0.2+dfsg-3) unstable; urgency=medium
 
   * d/control: libamd-comgr3 now depends on libclang-common-21-dev
     to provide opencl-c-base.h (Closes: #1120886)
+  * Force a stage-1 bootstrap build that only produces rocm-device-libs-21.
 
  -- Cordell Bloor <cgmb@debian.org>  Thu, 05 Feb 2026 16:46:09 -0700
 
