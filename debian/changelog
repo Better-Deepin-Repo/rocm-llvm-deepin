@@ -1,10 +1,49 @@
-rocm-llvm (7.0.2+dfsg-3) unstable; urgency=medium
+rocm-llvm (7.1.1+dfsg-0ubuntu1) resolute; urgency=medium
 
-  * d/control: libamd-comgr3 now depends on libclang-common-21-dev
-    to provide opencl-c-base.h (Closes: #1120886)
-  * Force a stage-1 bootstrap build that only produces rocm-device-libs-21.
+  * New upstream version 7.1.1 (no changes stack rebuild)
+    (LP: #2148304)
 
- -- Cordell Bloor <cgmb@debian.org>  Thu, 05 Feb 2026 16:46:09 -0700
+ -- Igor Luppi <igor.luppi@canonical.com>  Tue, 14 Apr 2026 08:24:33 -0300
+
+rocm-llvm (7.1.0+dfsg-0ubuntu6) resolute; urgency=medium
+
+  * d/control: Fix dependency to explicitly require libstdc++-16-dev
+    for ROCm v7.1.0 stack (LP: #2143637). 
+
+ -- Igor Luppi <igor.luppi@canonical.com>  Sat, 07 Mar 2026 16:01:26 +0000
+
+rocm-llvm (7.1.0+dfsg-0ubuntu5) resolute; urgency=medium
+
+  * d/p/upstream-llvm-compatibility: remove not needed reinterpret_cast.
+    This fixes offload compression issue we see in ROCm stack with LLVM-21
+    (LP: #2142813)
+
+ -- Talha Can Havadar <talha.can.havadar@canonical.com>  Tue, 03 Mar 2026 13:26:06 +0100
+
+rocm-llvm (7.1.0+dfsg-0ubuntu4) resolute; urgency=medium
+
+  * No change rebuild due to rocr-runtime upgrade
+
+ -- Talha Can Havadar <talha.can.havadar@canonical.com>  Tue, 03 Feb 2026 18:57:51 +0300
+
+rocm-llvm (7.1.0+dfsg-0ubuntu3) resolute; urgency=medium
+
+  * d/control: add ppc64el builds back (LP: #2138906)
+
+ -- Talha Can Havadar <talha.can.havadar@canonical.com>  Mon, 26 Jan 2026 17:36:53 +0100
+
+rocm-llvm (7.1.0+dfsg-0ubuntu2) resolute; urgency=medium
+
+  * d/control: build rocm-device-libs-21 only for amd64 and arm64 (LP: #2138733)
+
+ -- Talha Can Havadar <talha.can.havadar@canonical.com>  Tue, 20 Jan 2026 15:14:25 +0100
+
+rocm-llvm (7.1.0+dfsg-0ubuntu1) resolute; urgency=medium
+
+  * New upstream version 7.1.0
+  * d/control: remove unsupported architectures riscv64 and ppc64el
+
+ -- Talha Can Havadar <talha.can.havadar@canonical.com>  Thu, 15 Jan 2026 15:09:35 +0100
 
 rocm-llvm (7.0.2+dfsg-2) unstable; urgency=medium
 

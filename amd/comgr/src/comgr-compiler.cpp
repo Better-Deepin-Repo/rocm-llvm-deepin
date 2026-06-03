@@ -70,7 +70,6 @@
 #include "llvm/MC/MCCodeEmitter.h"
 #include "llvm/MC/MCContext.h"
 #include "llvm/MC/MCInstrInfo.h"
-#include "llvm/MC/MCInstPrinter.h"
 #include "llvm/MC/MCObjectFileInfo.h"
 #include "llvm/MC/MCObjectWriter.h"
 #include "llvm/MC/MCParser/MCAsmParser.h"
@@ -463,9 +462,8 @@ bool executeAssemblerImpl(AssemblerInvocation &Opts, DiagnosticsEngine &Diags,
 
   // FIXME: There is a bit of code duplication with addPassesToEmitFile.
   if (Opts.OutputType == AssemblerInvocation::FT_Asm) {
-    std::unique_ptr<MCInstPrinter> InstructionPrinter(
-      TheTarget->createMCInstPrinter(
-         llvm::Triple(Opts.Triple), Opts.OutputAsmVariant, *MAI, *MCII, *MRI));
+    MCInstPrinter *IP = TheTarget->createMCInstPrinter(
+        llvm::Triple(Opts.Triple), Opts.OutputAsmVariant, *MAI, *MCII, *MRI);
     std::unique_ptr<MCCodeEmitter> MCE;
     std::unique_ptr<MCAsmBackend> MAB;
     if (Opts.ShowEncoding) {
@@ -474,7 +472,7 @@ bool executeAssemblerImpl(AssemblerInvocation &Opts, DiagnosticsEngine &Diags,
       MAB.reset(TheTarget->createMCAsmBackend(*STI, *MRI, Options));
     }
     auto FOut = std::make_unique<formatted_raw_ostream>(*Out);
-    Str.reset(TheTarget->createAsmStreamer(Ctx, std::move(FOut), std::move(InstructionPrinter),
+    Str.reset(TheTarget->createAsmStreamer(Ctx, std::move(FOut), IP,
                                            std::move(MCE), std::move(MAB)));
   } else if (Opts.OutputType == AssemblerInvocation::FT_Null) {
     Str.reset(createNullStreamer(Ctx));
@@ -655,9 +653,9 @@ void logArgv(raw_ostream &OS, StringRef ProgramName,
 amd_comgr_status_t executeCommand(const Command &Job, raw_ostream &LogS,
                                   DiagnosticOptions &DiagOpts,
                                   llvm::vfs::FileSystem &FS) {
-  TextDiagnosticPrinter DiagClient(LogS, DiagOpts);
+  TextDiagnosticPrinter DiagClient(LogS, &DiagOpts);
   IntrusiveRefCntPtr<DiagnosticIDs> DiagID(new DiagnosticIDs);
-  DiagnosticsEngine Diags(DiagID, DiagOpts, &DiagClient, false);
+  DiagnosticsEngine Diags(DiagID, &DiagOpts, &DiagClient, false);
 
   auto Arguments = Job.getArguments();
   SmallVector<const char *, 128> Argv;
@@ -752,7 +750,7 @@ AMDGPUCompiler::executeInProcessDriver(ArrayRef<const char *> Args) {
   // here is mostly copy-and-pasted from driver.cpp/cc1_main.cpp/various Clang
   // tests to try to approximate the same behavior as running the `clang`
   // executable.
-  std::unique_ptr<DiagnosticOptions> DiagOpts(new DiagnosticOptions);
+  IntrusiveRefCntPtr<DiagnosticOptions> DiagOpts(new DiagnosticOptions);
   unsigned MissingArgIndex, MissingArgCount;
   InputArgList ArgList = getDriverOptTable().ParseArgs(
       Args.slice(1), MissingArgIndex, MissingArgCount);
@@ -761,9 +759,9 @@ AMDGPUCompiler::executeInProcessDriver(ArrayRef<const char *> Args) {
   // DiagnosticsEngine actually exists.
   (void)ParseDiagnosticArgs(*DiagOpts, ArgList);
   TextDiagnosticPrinter *DiagClient =
-      new TextDiagnosticPrinter(LogS, *DiagOpts);
+      new TextDiagnosticPrinter(LogS, &*DiagOpts);
   IntrusiveRefCntPtr<DiagnosticIDs> DiagID(new DiagnosticIDs);
-  DiagnosticsEngine Diags(DiagID, *DiagOpts, DiagClient);
+  DiagnosticsEngine Diags(DiagID, &*DiagOpts, DiagClient);
 
   ProcessWarningOptions(Diags, *DiagOpts, *OverlayFS, /*ReportDiags=*/false);
 

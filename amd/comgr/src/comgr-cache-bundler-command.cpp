@@ -152,33 +152,10 @@ void UnbundleCommand::addOptionsIdentifier(HashAlgorithm &H) const {
   }
 }
 
-namespace DebianCompressedOffloadBundleExt {
-  static inline const size_t MagicSize = 4;
-  static inline const size_t VersionFieldSize = sizeof(uint16_t);
-  static inline const size_t MethodFieldSize = sizeof(uint16_t);
-  static inline const size_t FileSizeFieldSizeV2 = sizeof(uint32_t);
-  static inline const size_t UncompressedSizeFieldSizeV2 = sizeof(uint32_t);
-  static inline const size_t FileSizeFieldSizeV3 = sizeof(uint64_t);
-  static inline const size_t UncompressedSizeFieldSizeV3 = sizeof(uint64_t);
-  static inline const size_t HashFieldSize = sizeof(uint64_t);
-
-  static inline const size_t V1HeaderSize =
-      MagicSize + VersionFieldSize + MethodFieldSize +
-      UncompressedSizeFieldSizeV2 + HashFieldSize;
-
-  static inline const size_t V2HeaderSize =
-      MagicSize + VersionFieldSize + FileSizeFieldSizeV2 + MethodFieldSize +
-      UncompressedSizeFieldSizeV2 + HashFieldSize;
-
-  static inline const size_t V3HeaderSize =
-      MagicSize + VersionFieldSize + FileSizeFieldSizeV3 + MethodFieldSize +
-      UncompressedSizeFieldSizeV3 + HashFieldSize;
-}
-
 Error UnbundleCommand::addInputIdentifier(HashAlgorithm &H) const {
   StringRef InputFilename = Config.InputFileNames.front();
 
-  const size_t LargestHeaderSize = DebianCompressedOffloadBundleExt::V3HeaderSize;
+  constexpr size_t LargestHeaderSize = CompressedOffloadBundle::V3HeaderSize;
 
   ErrorOr<std::unique_ptr<MemoryBuffer>> MaybeInputBuffer =
       MemoryBuffer::getFileSlice(InputFilename, LargestHeaderSize, 0);
@@ -197,7 +174,7 @@ Error UnbundleCommand::addInputIdentifier(HashAlgorithm &H) const {
 
   // only hash the input file, not the whole header. Colissions are unlikely
   // since the header includes a hash (weak) of the contents
-  H.update(reinterpret_cast<const char*>(Header));
+  H.update(Header);
   return Error::success();
 }
 

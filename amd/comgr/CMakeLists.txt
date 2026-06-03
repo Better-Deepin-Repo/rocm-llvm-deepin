@@ -38,7 +38,6 @@ endif(EXISTS "${CMAKE_SOURCE_DIR}/../../.git")
 
 include(GNUInstallDirs)
 include(CMakePackageConfigHelpers)
-option(FILE_REORG_BACKWARD_COMPATIBILITY "Enable File Reorg with backward compatibility" OFF)
 # Optionally, build Compiler Support with ccache.
 set(ROCM_CCACHE_BUILD OFF CACHE BOOL "Set to ON for a ccache enabled build")
 if (ROCM_CCACHE_BUILD)
@@ -167,11 +166,6 @@ if (ADDRESS_SANITIZER)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${ASAN_LINKER_FLAGS} -s")
   set(CMAKE_SHARED_LINKER_FLAGS
     "${CMAKE_SHARED_LINKER_FLAGS} ${ASAN_LINKER_FLAGS}")
-endif()
-
-if(CMAKE_SYSTEM_PROCESSOR MATCHES "aarch64|ppc64le|riscv64|s390x")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${ASAN_COMPILER_FLAGS} -fsigned-char")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${ASAN_COMPILER_FLAGS} -fsigned-char")
 endif()
 
 set(AMD_COMGR_PRIVATE_COMPILE_OPTIONS)
@@ -331,26 +325,6 @@ install(FILES
   "${CMAKE_CURRENT_BINARY_DIR}/include/amd_comgr.h"
   COMPONENT amd-comgr
   DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${amd_comgr_NAME})
-
-#File reorg Backward compatibility function
-if(FILE_REORG_BACKWARD_COMPATIBILITY)
-# To enable/disable #error in wrapper header files
- if(NOT DEFINED ROCM_HEADER_WRAPPER_WERROR)
-      if(DEFINED ENV{ROCM_HEADER_WRAPPER_WERROR})
-          set(ROCM_HEADER_WRAPPER_WERROR "$ENV{ROCM_HEADER_WRAPPER_WERROR}"
-                  CACHE STRING "Header wrapper warnings as errors.")
-      else()
-          set(ROCM_HEADER_WRAPPER_WERROR "OFF" CACHE STRING "Header wrapper warnings as errors.")
-      endif()
-  endif()
-  if(ROCM_HEADER_WRAPPER_WERROR)
-      set(deprecated_error 1)
-  else()
-      set(deprecated_error 0)
-  endif()
-
-  include(comgr-backward-compat.cmake)
-endif()
 
 if(ENABLE_ASAN_PACKAGING)
   install(FILES

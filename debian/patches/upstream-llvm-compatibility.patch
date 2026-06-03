@@ -6,13 +6,21 @@ Subject: upstream llvm compatibility
   from upstream LLVM 21.
 - The Header is unsigned char* and requires an explicit cast to
   const char*.
----
- amd/comgr/src/comgr-cache-bundler-command.cpp | 27 +++++++++++++++++++++++++--
- 2 files changed, 25 insertions(+), 3 deletions(-)
 
+[ Talha Can Havadar ]
+Remove not needed reinterpret_cast of "Header", which fixes the bug we see
+here in ubuntu: https://bugs.launchpad.net/ubuntu/+source/rocm-llvm/+bug/2142813
+
+Last-Update: 2026-03-03
+---
+ amd/comgr/src/comgr-cache-bundler-command.cpp | 25 ++++++++++++++++++++++++-
+ 1 file changed, 24 insertions(+), 1 deletion(-)
+
+diff --git a/amd/comgr/src/comgr-cache-bundler-command.cpp b/amd/comgr/src/comgr-cache-bundler-command.cpp
+index 5142627..d6ab8b0 100644
 --- a/amd/comgr/src/comgr-cache-bundler-command.cpp
 +++ b/amd/comgr/src/comgr-cache-bundler-command.cpp
-@@ -152,10 +152,33 @@
+@@ -152,10 +152,33 @@ void UnbundleCommand::addOptionsIdentifier(HashAlgorithm &H) const {
    }
  }
  
@@ -47,12 +55,3 @@ Subject: upstream llvm compatibility
  
    ErrorOr<std::unique_ptr<MemoryBuffer>> MaybeInputBuffer =
        MemoryBuffer::getFileSlice(InputFilename, LargestHeaderSize, 0);
-@@ -174,7 +197,7 @@
- 
-   // only hash the input file, not the whole header. Colissions are unlikely
-   // since the header includes a hash (weak) of the contents
--  H.update(Header);
-+  H.update(reinterpret_cast<const char*>(Header));
-   return Error::success();
- }
- 
